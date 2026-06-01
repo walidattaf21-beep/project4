@@ -36,9 +36,37 @@ session_start();
                 <li><a href="#">Contact</a></li>
             </ul>
         </nav>
-        
+
           <!-- Login en registratie knoppen -->
         <div class="buttons">
             <a href="#" class="login-btn">Inloggen</a>
             <a href="#" class="register-btn">Registreren</a>
         </div>
+
+        </header>
+
+    <!-- ================= HERO SECTION ================= -->
+    <section class="hero">
+
+        <!-- Overlay maakt tekst beter leesbaar -->
+        <div class="overlay">
+
+            <div class="hero-content">
+
+                <h2>Beleef theater <br> op z'n mooist</h2>
+
+                <p>
+                    Aurora Theater brengt verhalen tot leven.
+                    Ontdek onze indrukwekkende voorstellingen
+                    en reserveer jouw tickets vandaag nog.
+                </p>
+
+                <a href="#" class="cta-btn">
+                    Bekijk Voorstellingen
+                </a>
+
+            </div>
+
+        </div>
+
+    </section>
