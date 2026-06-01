@@ -98,3 +98,49 @@ session_start();
                 </div>
 
             </div>
+
+             <!-- Voorstelling 2 -->
+            <div class="show-card">
+
+                <img src="images/lionking.jpg" alt="Lion King">
+
+                <div class="show-info">
+
+                    <h3>The Lion King</h3>
+
+                    <p>14 Juni 2025 - 19:30</p>
+
+                    <p>Kleine Zaal</p>
+
+                    <h4>Vanaf €34,50</h4>
+
+                    <a href="#">Meer Info</a>
+
+                </div>
+
+            </div>
+
+            <!-- Voorstelling 3 -->
+            <div class="show-card">
+
+                <img src="images/hamlet.jpg" alt="Hamlet">
+
+                <div class="show-info">
+
+                    <h3>Hamlet</h3>
+
+                    <p>18 Juni 2025 - 20:15</p>
+
+                    <p>Kleine Zaal</p>
+
+                    <h4>Vanaf €22,50</h4>
+
+                    <a href="#">Meer Info</a>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </section>
