@@ -169,3 +169,27 @@ session_start();
         </div>
 
     </section>
+
+      <!-- ================= FOOTER ================= -->
+    <footer>
+
+        <div class="footer-logo">
+            <h2>AURORA</h2>
+        </div>
+
+        <div class="footer-links">
+
+            <a href="#">Over Ons</a>
+            <a href="#">Contact</a>
+            <a href="#">Veelgestelde Vragen</a>
+            <a href="#">Algemene Voorwaarden</a>
+
+        </div>
+
+        <p>&copy; 2025 Aurora Theater</p>
+
+    </footer>
+
+</body>
+
+</html>
