@@ -14,3 +14,25 @@ session_start();
     <!-- Koppeling naar CSS bestand -->
     <link rel="stylesheet" href="css/style.css">
 </head>
+
+<body>
+
+    <!-- ================= HEADER ================= -->
+    <header>
+
+        <!-- Logo van Aurora Theater -->
+        <div class="logo">
+            <h1>AURORA</h1>
+            <span>Theater</span>
+        </div>
+
+        <!-- Navigatiemenu -->
+        <nav>
+            <ul>
+                <li><a href="#">Home</a></li>
+                <li><a href="#">Voorstellingen</a></li>
+                <li><a href="#">Tickets</a></li>
+                <li><a href="#">Over Ons</a></li>
+                <li><a href="#">Contact</a></li>
+            </ul>
+        </nav>
