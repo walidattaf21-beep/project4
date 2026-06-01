@@ -70,3 +70,31 @@ session_start();
         </div>
 
     </section>
+
+    <!-- ================= VOORSTELLINGEN ================= -->
+    <section class="shows">
+
+        <div class="section-title">
+            <h2>Aankomende Voorstellingen</h2>
+        </div>
+
+        <div class="show-container">
+
+            <!-- Voorstelling 1 -->
+            <div class="show-card">
+
+                <img src="images/lesmiserables.jpg" alt="Les Miserables">
+
+                <div class="show-info">
+                    <h3>Les Misérables</h3>
+
+                    <p>12 Juni 2025 - 20:00</p>
+
+                    <p>Grote Zaal</p>
+
+                    <h4>Vanaf €29,50</h4>
+
+                    <a href="#">Meer Info</a>
+                </div>
+
+            </div>
