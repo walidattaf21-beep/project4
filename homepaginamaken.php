@@ -36,3 +36,9 @@ session_start();
                 <li><a href="#">Contact</a></li>
             </ul>
         </nav>
+        
+          <!-- Login en registratie knoppen -->
+        <div class="buttons">
+            <a href="#" class="login-btn">Inloggen</a>
+            <a href="#" class="register-btn">Registreren</a>
+        </div>
