@@ -144,3 +144,28 @@ session_start();
         </div>
 
     </section>
+
+     <!-- ================= USP SECTION ================= -->
+    <section class="usp">
+
+        <div class="usp-box">
+            <h3>Unieke Voorstellingen</h3>
+            <p>Van musicals tot toneel en cabaret.</p>
+        </div>
+
+        <div class="usp-box">
+            <h3>Toplocatie</h3>
+            <p>Prachtig theater in het hart van de stad.</p>
+        </div>
+
+        <div class="usp-box">
+            <h3>Eenvoudig Reserveren</h3>
+            <p>Snel en veilig tickets reserveren.</p>
+        </div>
+
+        <div class="usp-box">
+            <h3>Klantenservice</h3>
+            <p>Wij staan voor je klaar.</p>
+        </div>
+
+    </section>
