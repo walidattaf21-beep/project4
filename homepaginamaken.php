@@ -12,7 +12,7 @@ session_start();
     <title>Aurora Theater</title>
 
     <!-- Koppeling naar CSS bestand -->
-    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="style.css">
 </head>
 
 <body>
