@@ -1,6 +1,9 @@
 <?php
 // Start eventueel een sessie voor loginfunctionaliteit
 session_start();
+
+// Koppel de databaseconfiguratie
+require_once 'database/config.php';
 ?>
 
 <!DOCTYPE html>
@@ -13,6 +16,9 @@ session_start();
 
     <!-- Koppeling naar CSS bestand -->
     <link rel="stylesheet" href="style.css">
+
+    <!-- Font Awesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
 
 <body>
@@ -39,9 +45,14 @@ session_start();
 
           <!-- Login en registratie knoppen -->
         <div class="buttons">
-            <a href="#" class="login-btn">Inloggen</a>
-            <a href="#" class="register-btn">Registreren</a>
+            <a href="inloggen.php" class="login-btn">Inloggen</a>
+            <a href="registreren.php" class="register-btn">Registreren</a>
         </div>
+
+        <!-- Hamburger Menu Toggle voor Mobiel -->
+        <button class="menu-toggle" id="mobile-menu-toggle" aria-label="Open navigatiemenu">
+            <i class="fas fa-bars"></i>
+        </button>
 
         </header>
 
@@ -189,6 +200,27 @@ session_start();
         <p>&copy; 2025 Aurora Theater</p>
 
     </footer>
+
+    <!-- JavaScript voor Hamburger Menu -->
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const menuToggle = document.getElementById('mobile-menu-toggle');
+            const navMenu = document.querySelector('nav');
+            const buttonsContainer = document.querySelector('.buttons');
+            
+            menuToggle.addEventListener('click', () => {
+                navMenu.classList.toggle('active');
+                buttonsContainer.classList.toggle('active');
+                
+                const icon = menuToggle.querySelector('i');
+                if (navMenu.classList.contains('active')) {
+                    icon.className = 'fas fa-times';
+                } else {
+                    icon.className = 'fas fa-bars';
+                }
+            });
+        });
+    </script>
 
 </body>
 
