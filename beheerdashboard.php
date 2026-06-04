@@ -54,7 +54,7 @@
   <!-- ===== HOOFDINHOUD ===== -->
   <main class="content">
  
-    <!-- Database simulatieknop -->
+    <!-- Database knop -->
     <div style="display:flex;justify-content:flex-end;margin-bottom:1.25rem">
       <button class="db-btn" onclick="toggleDB()">
         <span class="db-dot" id="dbDot"></span>
