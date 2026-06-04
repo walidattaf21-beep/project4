@@ -533,3 +533,15 @@ table tbody tr:hover td { background: var(--card); cursor: pointer; }
  
   .form-card { padding: 1rem; }
 }
+.beheer-btn {
+    background: #e8b923;
+    color: #1a1a1a !important;
+    padding: 6px 14px;
+    border-radius: 6px;
+    font-weight: 700;
+    transition: opacity 0.2s;
+}
+
+.beheer-btn:hover {
+    opacity: 0.85;
+}

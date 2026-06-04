@@ -40,6 +40,7 @@ require_once 'database/config.php';
                 <li><a href="#">Tickets</a></li>
                 <li><a href="#">Over Ons</a></li>
                 <li><a href="#">Contact</a></li>
+<li><a href="beheerdashboard.php" class="beheer-btn">Beheerdashboard</a></li>
             </ul>
         </nav>
 
