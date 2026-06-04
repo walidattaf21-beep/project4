@@ -8,7 +8,7 @@
   <style>
     /* ===== KLEURVARIABELEN – exact gebaseerd op Aurora Theater screenshot ===== */
     :root {
-      --gold:      #e8b923;   /* geel/goud accent */
+      --gold:      #e8b923;   /* geel/goud accent semili weshhhhh */
       --nav:       #2b2b2b;   /* donkere navigatiebalk */
       --bg:        #4a4a4a;   /* hoofdachtergrond grijs */
       --card:      #3d3d3d;   /* kaarten iets donkerder */
