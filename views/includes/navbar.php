@@ -1,8 +1,15 @@
+<?php
+// Bepaal de prefix om terug te keren naar de root-directory
+$root_prefix = '';
+if (basename(dirname($_SERVER['SCRIPT_FILENAME'])) === 'overzicht voorstellingen') {
+    $root_prefix = '../';
+}
+?>
 <!-- ================= HEADER / NAVBAR ================= -->
 <header>
 
     <!-- Logo van Aurora Theater -->
-    <a href="/homepaginamaken.php" style="text-decoration: none; color: inherit;">
+    <a href="<?php echo $root_prefix; ?>homepaginamaken.php" style="text-decoration: none; color: inherit;">
         <div class="logo">
             <h1>AURORA</h1>
             <span>Theater</span>
@@ -12,18 +19,18 @@
     <!-- Navigatiemenu -->
     <nav>
         <ul>
-            <li><a href="/homepaginamaken.php">Home</a></li>
-            <li><a href="/overzicht voorstellingen/overzichtvoorstellingen.php">Voorstellingen</a></li>
+            <li><a href="<?php echo $root_prefix; ?>homepaginamaken.php">Home</a></li>
+            <li><a href="<?php echo $root_prefix; ?>overzicht voorstellingen/overzichtvoorstellingen.php">Voorstellingen</a></li>
             <li><a href="#">Tickets</a></li>
             <li><a href="#">Over Ons</a></li>
             <li><a href="#">Contact</a></li>
-            <li><a href="/beheerdashboard.php" class="beheer-btn">Beheerdashboard</a></li>
+            <li><a href="<?php echo $root_prefix; ?>beheerdashboard.php" class="beheer-btn">Beheerdashboard</a></li>
         </ul>
     </nav>
 
     <!-- Login en registratie knoppen (Registreren is verwijderd) -->
     <div class="buttons">
-        <a href="/inloggen.php" class="login-btn">Inloggen</a>
+        <a href="<?php echo $root_prefix; ?>inloggen.php" class="login-btn">Inloggen</a>
     </div>
 
 </header>

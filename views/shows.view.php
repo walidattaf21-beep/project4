@@ -50,12 +50,12 @@
             <?php foreach ($voorstellingen as $voorstelling): ?>
 
                 <tr>
-                    <td><?= htmlspecialchars($voorstelling['Naam']); ?></td>
-                    <td><?= htmlspecialchars($voorstelling['Beschrijving']); ?></td>
-                    <td><?= date('d-m-Y', strtotime($voorstelling['Datum'])); ?></td>
-                    <td><?= substr($voorstelling['Tijd'], 0, 5); ?></td>
-                    <td><?= (int) $voorstelling['MaxAantalTickets']; ?> plaatsen</td>
-                    <td>
+                    <td data-label="Naam"><?= htmlspecialchars($voorstelling['Naam']); ?></td>
+                    <td data-label="Beschrijving"><?= htmlspecialchars($voorstelling['Beschrijving']); ?></td>
+                    <td data-label="Datum"><?= date('d-m-Y', strtotime($voorstelling['Datum'])); ?></td>
+                    <td data-label="Tijd"><?= substr($voorstelling['Tijd'], 0, 5); ?></td>
+                    <td data-label="Capaciteit"><?= (int) $voorstelling['MaxAantalTickets']; ?> plaatsen</td>
+                    <td data-label="Status">
                         <?php if ($voorstelling['Beschikbaarheid'] === 'Ingepland'): ?>
                             <span class="status groen">Ingepland</span>
                         <?php elseif ($voorstelling['Beschikbaarheid'] === 'Uitverkocht'): ?>

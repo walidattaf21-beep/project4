@@ -34,7 +34,7 @@
                     en reserveer jouw tickets vandaag nog.
                 </p>
 
-                <a href="/overzicht voorstellingen/overzichtvoorstellingen.php" class="cta-btn">
+                <a href="overzicht voorstellingen/overzichtvoorstellingen.php" class="cta-btn">
                     Bekijk Voorstellingen
                 </a>
 

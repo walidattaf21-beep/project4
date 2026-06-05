@@ -1,3 +1,10 @@
+<?php
+// Bepaal de prefix om terug te keren naar de root-directory
+$root_prefix = '';
+if (basename(dirname($_SERVER['SCRIPT_FILENAME'])) === 'overzicht voorstellingen') {
+    $root_prefix = '../';
+}
+?>
 <!-- ================= FOOTER ================= -->
 <footer class="site-footer">
 
@@ -25,8 +32,8 @@
         <div class="footer-col">
             <h4 class="footer-col-title">Navigatie</h4>
             <ul>
-                <li><a href="/homepaginamaken.php">Home</a></li>
-                <li><a href="/overzicht voorstellingen/overzichtvoorstellingen.php">Voorstellingen</a></li>
+                <li><a href="<?php echo $root_prefix; ?>homepaginamaken.php">Home</a></li>
+                <li><a href="<?php echo $root_prefix; ?>overzicht voorstellingen/overzichtvoorstellingen.php">Voorstellingen</a></li>
                 <li><a href="#">Tickets</a></li>
                 <li><a href="#">Over Ons</a></li>
                 <li><a href="#">Contact</a></li>
@@ -71,14 +78,20 @@
         const navMenu    = document.getElementById('main-nav');
         const navActions = document.getElementById('nav-actions');
 
-        menuToggle.addEventListener('click', () => {
-            navMenu.classList.toggle('active');
-            navActions.classList.toggle('active');
+        if (menuToggle && navMenu) {
+            menuToggle.addEventListener('click', () => {
+                navMenu.classList.toggle('active');
+                if (navActions) {
+                    navActions.classList.toggle('active');
+                }
 
-            const icon = menuToggle.querySelector('i');
-            icon.className = navMenu.classList.contains('active')
-                ? 'fas fa-times'
-                : 'fas fa-bars';
-        });
+                const icon = menuToggle.querySelector('i');
+                if (icon) {
+                    icon.className = navMenu.classList.contains('active')
+                        ? 'fas fa-times'
+                        : 'fas fa-bars';
+                }
+            });
+        }
     });
 </script>
