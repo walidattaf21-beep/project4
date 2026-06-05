@@ -33,4 +33,9 @@ if (basename(dirname($_SERVER['SCRIPT_FILENAME'])) === 'overzicht voorstellingen
         <a href="<?php echo $root_prefix; ?>inloggen.php" class="login-btn">Inloggen</a>
     </div>
 
+    <!-- Hamburger Menu Toggle voor Mobiel -->
+    <button class="menu-toggle" id="mobile-menu-toggle" aria-label="Open navigatiemenu">
+        <i class="fas fa-bars"></i>
+    </button>
+
 </header>

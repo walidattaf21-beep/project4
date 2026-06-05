@@ -70,6 +70,10 @@ nav a:hover {
     text-decoration: none;
 }
 
+.menu-toggle {
+    display: none;
+}
+
 /* ================= HERO ================= */
 
 .hero {
@@ -361,13 +365,47 @@ nav a:hover {
 
 @media(max-width:768px) {
     header {
-        flex-direction: column;
-        gap: 20px;
+        flex-wrap: wrap;
+        padding: 15px 30px;
+    }
+
+    .menu-toggle {
+        display: block;
+        background: transparent;
+        border: none;
+        color: #d4a75d;
+        font-size: 24px;
+        cursor: pointer;
+        outline: none;
+    }
+
+    nav {
+        display: none;
+        width: 100%;
+        order: 3;
+        margin-top: 15px;
+    }
+
+    nav.active {
+        display: block;
     }
 
     nav ul {
         flex-direction: column;
-        text-align: center;
+        gap: 15px;
+        align-items: center;
+    }
+
+    .buttons {
+        display: none;
+        width: 100%;
+        order: 4;
+        justify-content: center;
+        margin-top: 15px;
+    }
+
+    .buttons.active {
+        display: flex;
     }
 
     .hero-content {
