@@ -17,6 +17,7 @@
             <li><a href="#"><i class="fas fa-ticket-alt"></i> Tickets</a></li>
             <li><a href="#"><i class="fas fa-info-circle"></i> Over Ons</a></li>
             <li><a href="#"><i class="fas fa-envelope"></i> Contact</a></li>
+            <li><a href="/beheerdashboard.php" class="beheer-btn"><i class="fas fa-cog"></i> Beheerdashboard</a></li>
         </ul>
     </nav>
 
