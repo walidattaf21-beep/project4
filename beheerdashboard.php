@@ -207,6 +207,7 @@
     <div id="s-meldingen" class="section">
       <h1 class="page-title">Meldingen</h1>
       <p class="page-sub">Bekijk en beheer alle binnengekomen meldingen.</p>
+      <h2></h2>
  
       <div class="toolbar">
         <div class="toolbar-left">
