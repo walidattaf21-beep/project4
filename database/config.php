@@ -1,5 +1,4 @@
 <?php
-
 $host = "localhost";
 // $dbname = "Aurora_OfflineTest";
 $dbname = "Aurora";

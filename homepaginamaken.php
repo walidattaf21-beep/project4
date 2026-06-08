@@ -36,7 +36,7 @@ require_once 'database/config.php';
         <nav>
             <ul>
                 <li><a href="#">Home</a></li>
-                <li><a href="#">Voorstellingen</a></li>
+                <li><a href="overzicht voorstellingen/overzichtvoorstellingen.php">Voorstellingen</a></li>
                 <li><a href="#">Tickets</a></li>
                 <li><a href="#">Over Ons</a></li>
                 <li><a href="#">Contact</a></li>
