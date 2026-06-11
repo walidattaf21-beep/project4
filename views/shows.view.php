@@ -28,10 +28,13 @@
 
         <!-- Knop: voorstelling toevoegen -->
         <div class="acties-balk">
-            <a href="../overzicht voorstellingen/voorstelling-toevoegen.php" class="btn-toevoegen">
-                <span class="btn-icon">＋</span> Voorstelling toevoegen
+            <a href="../overzicht voorstellingen/voorstelling-toevoegen.php" class="btn-toevoegen" id="btn-nieuwe-voorstelling">
+                <span class="btn-pulse-ring"></span>
+                <i class="fas fa-plus"></i>
+                <span class="btn-label">Nieuwe Voorstelling</span>
             </a>
         </div>
+
 
         <!-- Flash berichten -->
         <?php if (!empty($_SESSION['flash_success'])): ?>
