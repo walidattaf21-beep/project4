@@ -29,9 +29,7 @@
         <!-- Knop: voorstelling toevoegen -->
         <div class="acties-balk">
             <a href="../overzicht voorstellingen/voorstelling-toevoegen.php" class="btn-toevoegen" id="btn-nieuwe-voorstelling">
-                <span class="btn-pulse-ring"></span>
-                <i class="fas fa-plus"></i>
-                <span class="btn-label">Nieuwe Voorstelling</span>
+                + Nieuwe Voorstelling
             </a>
         </div>
 
