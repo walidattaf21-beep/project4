@@ -26,6 +26,23 @@
 
         <h1>Aankomende Voorstellingen</h1>
 
+        <!-- Knop: voorstelling toevoegen -->
+        <div class="acties-balk">
+            <a href="../overzicht voorstellingen/voorstelling-toevoegen.php" class="btn-toevoegen">
+                <span class="btn-icon">＋</span> Voorstelling toevoegen
+            </a>
+        </div>
+
+        <!-- Flash berichten -->
+        <?php if (!empty($_SESSION['flash_success'])): ?>
+            <div class="flash flash-success"><?= htmlspecialchars($_SESSION['flash_success']); ?></div>
+            <?php unset($_SESSION['flash_success']); ?>
+        <?php endif; ?>
+        <?php if (!empty($_SESSION['flash_error'])): ?>
+            <div class="flash flash-error"><?= htmlspecialchars($_SESSION['flash_error']); ?></div>
+            <?php unset($_SESSION['flash_error']); ?>
+        <?php endif; ?>
+
         <?php if (empty($voorstellingen)): ?>
 
             <p class="geen-resultaten">Er zijn momenteel geen voorstellingen gepland.</p>
