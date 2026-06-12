@@ -2,12 +2,9 @@
    Overzicht Voorstellingen - Aurora Theater
    ============================================= */
 
-/* Google Fonts */
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
-
 /* Algemene styling */
 body {
-    font-family: 'Inter', Arial, sans-serif;
+    font-family: Arial, sans-serif;
     background-color: #f4f4f4;
     margin: 0;
     padding: 0;
@@ -25,7 +22,27 @@ body {
 h1 {
     text-align: center;
     margin-bottom: 30px;
-    color: #1f2937;
+    color: #0f0818;
+}
+
+/* Flash berichten */
+.flash {
+    padding: 12px 15px;
+    border-radius: 5px;
+    margin-bottom: 20px;
+    font-size: 14px;
+}
+
+.flash-success {
+    background-color: #d1fae5;
+    border: 1px solid #6ee7b7;
+    color: #065f46;
+}
+
+.flash-error {
+    background-color: #fee2e2;
+    border: 1px solid #fca5a5;
+    color: #991b1b;
 }
 
 /* ===== ACTIES BALK ===== */
@@ -76,7 +93,7 @@ table {
 
 /* Tabel koppen */
 th {
-    background-color: #1f2937;
+    background-color: #0f0818;
     color: white;
     padding: 15px;
     text-align: left;
