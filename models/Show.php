@@ -59,6 +59,18 @@ class Show {
             ]);
             return true;
         } catch (PDOException $e) {
+            // Detecteer database-verbindingsfouten (SQLSTATE 08xxx of specifieke codes)
+            $sqlState = $e->getCode();
+            if (
+                str_starts_with((string)$sqlState, '08') ||
+                str_contains($e->getMessage(), 'Connection refused') ||
+                str_contains($e->getMessage(), 'No connection') ||
+                str_contains($e->getMessage(), 'could not connect') ||
+                str_contains($e->getMessage(), 'SQLSTATE[HY000] [2002]') ||
+                str_contains($e->getMessage(), 'php_network_getaddresses')
+            ) {
+                throw new RuntimeException('db_connection_error', 0, $e);
+            }
             return false;
         }
     }

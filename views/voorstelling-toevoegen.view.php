@@ -70,6 +70,54 @@
             color: #065f46;
         }
 
+        .flash-db-error {
+            background-color: #fff3cd;
+            border: 1px solid #f59e0b;
+            color: #92400e;
+            border-radius: 6px;
+            padding: 14px 16px;
+            margin-bottom: 20px;
+            font-size: 14px;
+            display: flex;
+            align-items: flex-start;
+            gap: 12px;
+        }
+
+        .flash-db-error .db-error-icon {
+            font-size: 20px;
+            flex-shrink: 0;
+            margin-top: 1px;
+        }
+
+        .flash-db-error .db-error-text {
+            flex: 1;
+        }
+
+        .flash-db-error .db-error-text strong {
+            display: block;
+            margin-bottom: 8px;
+            font-size: 14px;
+        }
+
+        .btn-retry {
+            display: inline-block;
+            margin-top: 4px;
+            padding: 7px 16px;
+            border-radius: 5px;
+            font-size: 13px;
+            font-weight: 600;
+            font-family: Arial, sans-serif;
+            border: 1px solid #d97706;
+            background-color: #f59e0b;
+            color: #ffffff;
+            cursor: pointer;
+            transition: background-color 0.2s ease;
+        }
+
+        .btn-retry:hover {
+            background-color: #d97706;
+        }
+
         .form-grid {
             display: grid;
             grid-template-columns: 1fr 1fr;
@@ -214,6 +262,20 @@
 
             <h1>Nieuwe Voorstelling Toevoegen</h1>
 
+            <?php if (!empty($_SESSION['flash_db_error'])): ?>
+                <div class="flash-db-error" id="db-error-banner" role="alert">
+                    <span class="db-error-icon">⚠️</span>
+                    <div class="db-error-text">
+                        <strong><?= htmlspecialchars($_SESSION['flash_db_error']); ?></strong>
+                        <button type="button" class="btn-retry" id="btn-probeer-opnieuw"
+                            onclick="document.getElementById('voorstelling-form').submit();">
+                            Probeer opnieuw
+                        </button>
+                    </div>
+                </div>
+                <?php unset($_SESSION['flash_db_error']); ?>
+            <?php endif; ?>
+
             <?php if (!empty($_SESSION['flash_error'])): ?>
                 <div class="flash flash-error">
                     <?= htmlspecialchars($_SESSION['flash_error']); ?>
@@ -221,7 +283,7 @@
                 <?php unset($_SESSION['flash_error']); ?>
             <?php endif; ?>
 
-            <form method="POST" action="voorstelling-toevoegen.php">
+            <form method="POST" action="voorstelling-toevoegen.php" id="voorstelling-form">
 
                 <div class="form-grid">
 

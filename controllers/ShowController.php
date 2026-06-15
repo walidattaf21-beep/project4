@@ -33,14 +33,22 @@ class ShowController {
             return;
         }
 
-        $success = Show::create([
-            'naam'            => $naam,
-            'beschrijving'    => $beschrijving,
-            'datum'           => $datum,
-            'tijd'            => $tijd,
-            'max_tickets'     => $maxTickets,
-            'beschikbaarheid' => $beschikbaarheid,
-        ]);
+        try {
+            $success = Show::create([
+                'naam'            => $naam,
+                'beschrijving'    => $beschrijving,
+                'datum'           => $datum,
+                'tijd'            => $tijd,
+                'max_tickets'     => $maxTickets,
+                'beschikbaarheid' => $beschikbaarheid,
+            ]);
+        } catch (RuntimeException $e) {
+            // Scenario 4: Database verbindingsfout (Unhappy Flow)
+            // Voorstelling NIET opgeslagen – toon foutmelding met "Probeer opnieuw" knop
+            $_SESSION['flash_db_error'] = 'Systeemfout: Kan geen verbinding maken met de database';
+            require_once __DIR__ . '/../views/voorstelling-toevoegen.view.php';
+            return;
+        }
 
         if ($success) {
             $_SESSION['flash_success'] = 'Voorstelling "' . htmlspecialchars($naam) . '" is succesvol aangemaakt!';
