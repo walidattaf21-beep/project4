@@ -1,4 +1,5 @@
 <?php
+// unhappy senario
 $host = "localhost";
 // $dbname = "Aurora_OfflineTest";
 $dbname = "Aurora";

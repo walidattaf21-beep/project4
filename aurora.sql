@@ -236,3 +236,26 @@ INSERT INTO Melding (BezoekerId, MedewerkerId, Nummer, Type, Bericht, IsActief, 
 (NULL, 4,    40008, 'Notificatie',  'Herinnering: Zomercircus begint over 2 weken. Tickets nog beschikbaar.',       1, NULL),
 (2,    NULL, 40009, 'Klacht',       'Mijn reservering was niet terug te vinden bij de kassa.',                      1, NULL),
 (4,    NULL, 40010, 'Review',       'Super leuke kindermiddag, mijn dochter was helemaal in de wolken!',            1, NULL);
+
+
+-- 10. Tabel: Ferrari
+CREATE TABLE Ferrari (
+    Id INT NOT NULL AUTO_INCREMENT,
+    Merk VARCHAR(50) NOT NULL DEFAULT 'Ferrari',
+    Model VARCHAR(100) NOT NULL,
+    Bouwjaar YEAR NOT NULL,
+    Kleur VARCHAR(50) NOT NULL,
+    Prijs DECIMAL(12,2) NOT NULL,
+    IsActief BIT NOT NULL DEFAULT 1,
+    Opmerking VARCHAR(250) NULL,
+    DatumAangemaakt DATETIME(6) NOT NULL DEFAULT CURRENT_TIMESTAMP(6),
+    DatumGewijzigd DATETIME(6) NOT NULL DEFAULT CURRENT_TIMESTAMP(6) ON UPDATE CURRENT_TIMESTAMP(6),
+    PRIMARY KEY (Id)
+) ENGINE=InnoDB;
+
+INSERT INTO Ferrari (Merk, Model, Bouwjaar, Kleur, Prijs, IsActief, Opmerking) VALUES
+('Ferrari', 'Roma',        2022, 'Rosso Corsa',    225000.00, 1, NULL),
+('Ferrari', 'SF90 Stradale', 2023, 'Giallo Modena', 510000.00, 1, 'Hybride supercar'),
+('Ferrari', '296 GTB',     2023, 'Blu Corsa',      290000.00, 1, NULL),
+('Ferrari', 'Portofino M', 2021, 'Bianco Avus',    215000.00, 1, 'Cabriolet'),
+('Ferrari', 'F8 Tributo',  2020, 'Nero Daytona',   260000.00, 1, NULL);
