@@ -252,13 +252,13 @@ $medewerkers = array_map(function ($row) {
         <div class="form-title"><i class="ti ti-user-plus"></i> Nieuwe medewerker toevoegen</div>
 
         <?php if (!empty($successMessage)) : ?>
-          <div class="success-banner" style="background:#e8f7ed;color:#1f5b3b;border:1px solid #b7e1c5;padding:0.9rem 1rem;border-radius:10px;margin-bottom:1rem;">
+          <div class="success-banner auto-hide" data-auto-hide="true" style="background:#e8f7ed;color:#1f5b3b;border:1px solid #b7e1c5;padding:0.9rem 1rem;border-radius:10px;margin-bottom:1rem;opacity:1;transition:opacity 0.5s ease;">
             <?= h($successMessage) ?>
           </div>
         <?php endif; ?>
 
         <?php if (!empty($errorMessage)) : ?>
-          <div class="error-banner visible" style="margin-bottom:1rem;">
+          <div class="error-banner visible auto-hide" data-auto-hide="true" style="margin-bottom:1rem;opacity:1;transition:opacity 0.5s ease;">
             <i class="ti ti-alert-circle"></i>
             <div><?= h($errorMessage) ?></div>
           </div>
@@ -653,6 +653,15 @@ if (params.get('section') === 'medewerkers') {
 } else {
   renderMedewerkers();
 }
+
+setTimeout(() => {
+  document.querySelectorAll('.auto-hide').forEach(el => {
+    el.style.opacity = '0';
+    setTimeout(() => {
+      el.style.display = 'none';
+    }, 500);
+  });
+}, 4000);
 </script>
 </body>
 </html>
