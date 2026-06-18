@@ -1,6 +1,12 @@
 <?php
-session_start();
+require_once __DIR__ . '/includes/auth.php';
 require_once __DIR__ . '/database/config.php';
+
+if (!canAccessDashboard()) {
+  flash('error', 'Je hebt geen toegang tot het beheerdashboard.');
+  header('Location: inloggen.php');
+  exit;
+}
 
 function h($value) {
   return htmlspecialchars((string)$value, ENT_QUOTES, 'UTF-8');

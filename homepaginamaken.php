@@ -1,9 +1,11 @@
 <?php
-// Start eventueel een sessie voor loginfunctionaliteit
-session_start();
- 
-// Koppel de databaseconfiguratie
+require_once 'includes/auth.php';
 require_once 'database/config.php';
+
+$flash = getFlash();
+function h($value) {
+    return htmlspecialchars((string)$value, ENT_QUOTES, 'UTF-8');
+}
 ?>
  
 <!DOCTYPE html>
@@ -40,14 +42,24 @@ require_once 'database/config.php';
                 <li><a href="#">Tickets</a></li>
                 <li><a href="#">Over Ons</a></li>
                 <li><a href="#">Contact</a></li>
-<li><a href="beheerdashboard.php" class="beheer-btn">Beheerdashboard</a></li>
+                <?php if (canAccessDashboard()): ?>
+                    <li><a href="beheerdashboard.php" class="beheer-btn">Beheerdashboard</a></li>
+                <?php endif; ?>
             </ul>
         </nav>
  
-          <!-- Login en registratie knoppen -->
         <div class="buttons">
-            <a href="login.php" class="login-btn">Inloggen</a>
-            <a href="registreren.php" class="register-btn">Registreren</a>
+            <?php if (isLoggedIn()):
+                $user = currentUser();
+            ?>
+                <a href="uitloggen.php" class="account-btn" title="Uitloggen">
+                    <i class="fas fa-user-circle"></i>
+                    <span>Ingelogd</span>
+                    <strong><?= h($user['name'] ?? 'Gebruiker') ?></strong>
+                </a>
+            <?php else: ?>
+                <a href="inloggen.php" class="login-btn">Inloggen</a>
+            <?php endif; ?>
         </div>
  
         <!-- Hamburger Menu Toggle voor Mobiel -->
@@ -57,6 +69,12 @@ require_once 'database/config.php';
  
         </header>
  
+    <?php if ($flash): ?>
+        <div class="auth-flash auth-flash-<?= h($flash['type']) ?>">
+            <?= h($flash['message']) ?>
+        </div>
+    <?php endif; ?>
+
     <!-- ================= HERO SECTION ================= -->
     <section class="hero">
  

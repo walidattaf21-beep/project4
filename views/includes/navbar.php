@@ -1,8 +1,13 @@
 <?php
-// Bepaal de prefix om terug te keren naar de root-directory
+require_once __DIR__ . '/../../includes/auth.php';
+
 $root_prefix = '';
 if (basename(dirname($_SERVER['SCRIPT_FILENAME'])) === 'overzicht voorstellingen') {
     $root_prefix = '../';
+}
+
+function h($value) {
+    return htmlspecialchars((string)$value, ENT_QUOTES, 'UTF-8');
 }
 ?>
 <!-- ================= HEADER / NAVBAR ================= -->
@@ -24,13 +29,24 @@ if (basename(dirname($_SERVER['SCRIPT_FILENAME'])) === 'overzicht voorstellingen
             <li><a href="#">Tickets</a></li>
             <li><a href="#">Over Ons</a></li>
             <li><a href="#">Contact</a></li>
-            <li><a href="<?php echo $root_prefix; ?>beheerdashboard.php" class="beheer-btn">Beheerdashboard</a></li>
+            <?php if (canAccessDashboard()): ?>
+                <li><a href="<?php echo $root_prefix; ?>beheerdashboard.php" class="beheer-btn">Beheerdashboard</a></li>
+            <?php endif; ?>
         </ul>
     </nav>
 
-    <!-- Login en registratie knoppen (Registreren is verwijderd) -->
     <div class="buttons">
-        <a href="<?php echo $root_prefix; ?>inloggen.php" class="login-btn">Inloggen</a>
+        <?php if (isLoggedIn()):
+            $user = currentUser();
+        ?>
+            <a href="<?php echo $root_prefix; ?>uitloggen.php" class="account-btn" title="Uitloggen">
+                <i class="fas fa-user-circle"></i>
+                <span>Ingelogd</span>
+                <strong><?= h($user['name'] ?? 'Gebruiker') ?></strong>
+            </a>
+        <?php else: ?>
+            <a href="<?php echo $root_prefix; ?>inloggen.php" class="login-btn">Inloggen</a>
+        <?php endif; ?>
     </div>
 
     <!-- Hamburger Menu Toggle voor Mobiel -->

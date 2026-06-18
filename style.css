@@ -60,18 +60,53 @@ nav a:hover {
 .login-btn {
     color: white;
     text-decoration: none;
+    font-weight: 600;
 }
 
-.register-btn {
-    background: #d4a75d;
-    color: black;
-    padding: 10px 15px;
-    border-radius: 5px;
+.account-btn {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    background: #1d1630;
+    color: #f7d98b;
     text-decoration: none;
+    padding: 10px 14px;
+    border-radius: 999px;
+    border: 1px solid #5f4a23;
+}
+
+.account-btn i {
+    font-size: 18px;
+}
+
+.account-btn span {
+    font-weight: 600;
+}
+
+.account-btn small {
+    color: #d9c089;
+    font-size: 11px;
 }
 
 .menu-toggle {
     display: none;
+}
+
+.auth-flash {
+    padding: 14px 18px;
+    text-align: center;
+    font-weight: 700;
+    font-size: 14px;
+}
+
+.auth-flash-success {
+    background: #e8f7ed;
+    color: #1e6b3c;
+}
+
+.auth-flash-error {
+    background: #fbe7e7;
+    color: #9c2626;
 }
 
 /* ================= HERO ================= */
