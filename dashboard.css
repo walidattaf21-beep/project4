@@ -263,20 +263,23 @@ nav {
 /* ===== FOUTMELDING BANNER ===== */
 .error-banner {
   display: none;
-  background: #4a2020;
-  border: 1px solid #7a3030;
-  border-radius: 8px;
-  padding: 1rem 1.25rem;
+  background: #6b1111;
+  border: 1px solid #a83a3a;
+  border-radius: 10px;
+  padding: 1rem 1.1rem;
   margin-bottom: 1.25rem;
-  color: #f0a0a0;
+  color: #fff7f7;
   font-family: sans-serif;
-  font-size: 13px;
+  font-size: 16px;
+  font-weight: 700;
+  line-height: 1.4;
   align-items: center;
   gap: 10px;
 }
  
 .error-banner.visible { display: flex; }
-.error-banner i { font-size: 20px; color: #e24b4a; flex-shrink: 0; }
+.error-banner > div { font-size: 16px; font-weight: 700; color: #fff7f7; }
+.error-banner i { font-size: 22px; color: #ff9a9a; flex-shrink: 0; }
  
 /* ===== MEDEWERKER KAARTENGRID ===== */
 .med-grid {

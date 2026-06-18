@@ -6,9 +6,8 @@ function h($value) {
   return htmlspecialchars((string)$value, ENT_QUOTES, 'UTF-8');
 }
 
-$successMessage = $_SESSION['success_message'] ?? null;
-$errorMessage   = $_SESSION['error_message'] ?? null;
-unset($_SESSION['success_message'], $_SESSION['error_message']);
+$flashMessages = $_SESSION['flash_messages'] ?? [];
+unset($_SESSION['flash_messages']);
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['add_employee'])) {
   $voornaam = trim($_POST['voornaam'] ?? '');
@@ -19,15 +18,15 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['add_employee'])) {
   $status = $_POST['status'] ?? 'actief';
 
   if ($voornaam === '' || $achternaam === '' || $email === '' || $wachtwoord === '' || $rol === '') {
-    $_SESSION['error_message'] = 'Vul alle verplichte velden in.';
+    $_SESSION['flash_messages']['medewerkers'] = ['type' => 'error', 'text' => 'Vul de verplichte velden in.'];
   } elseif (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
-    $_SESSION['error_message'] = 'Vul een geldig e-mailadres in.';
+    $_SESSION['flash_messages']['medewerkers'] = ['type' => 'error', 'text' => 'Vul een geldig e-mailadres in.'];
   } else {
     $stmt = $pdo->prepare('SELECT Id FROM Contact WHERE Email = :email');
     $stmt->execute([':email' => $email]);
 
     if ($stmt->fetch()) {
-      $_SESSION['error_message'] = 'E-mailadres bestaat al.';
+      $_SESSION['flash_messages']['medewerkers'] = ['type' => 'error', 'text' => 'E-mailadres bestaat al.'];
     } else {
       try {
         $pdo->beginTransaction();
@@ -76,15 +75,50 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['add_employee'])) {
         ]);
 
         $pdo->commit();
-        $_SESSION['success_message'] = 'Medewerker is succesvol toegevoegd.';
+        $_SESSION['flash_messages']['medewerkers'] = ['type' => 'success', 'text' => 'Medewerker is succesvol toegevoegd.'];
       } catch (Exception $e) {
         $pdo->rollBack();
-        $_SESSION['error_message'] = 'Er is iets misgegaan bij het opslaan.';
+        $_SESSION['flash_messages']['medewerkers'] = ['type' => 'error', 'text' => 'Er is iets misgegaan bij het opslaan.'];
       }
     }
   }
 
   header('Location: beheerdashboard.php?section=medewerkers');
+  exit;
+}
+
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['add_message'])) {
+  $onderwerp = trim($_POST['onderwerp'] ?? '');
+  $bericht = trim($_POST['bericht'] ?? '');
+
+  if ($onderwerp === '' || $bericht === '') {
+    $_SESSION['flash_messages']['meldingen'] = ['type' => 'error', 'text' => 'Vul de verplichte velden in.'];
+  } else {
+    try {
+      $pdo->beginTransaction();
+      $nextNumber = (int)$pdo->query('SELECT COALESCE(MAX(Nummer), 0) + 1 FROM Melding')->fetchColumn();
+
+      $stmt = $pdo->prepare(
+        'INSERT INTO Melding (BezoekerId, MedewerkerId, Nummer, Type, Bericht, IsActief, Opmerking) VALUES (:bezoeker_id, :medewerker_id, :nummer, :type, :bericht, 1, :opmerking)'
+      );
+      $stmt->execute([
+        ':bezoeker_id' => null,
+        ':medewerker_id' => null,
+        ':nummer' => $nextNumber,
+        ':type' => 'Notificatie',
+        ':bericht' => $bericht,
+        ':opmerking' => $onderwerp,
+      ]);
+
+      $pdo->commit();
+      $_SESSION['flash_messages']['meldingen'] = ['type' => 'success', 'text' => 'Melding is succesvol verstuurd.'];
+    } catch (Exception $e) {
+      $pdo->rollBack();
+      $_SESSION['flash_messages']['meldingen'] = ['type' => 'error', 'text' => 'Er is iets misgegaan bij het versturen.'];
+    }
+  }
+
+  header('Location: beheerdashboard.php?section=meldingen');
   exit;
 }
 
@@ -107,6 +141,22 @@ $medewerkers = array_map(function ($row) {
     'status' => $status,
   ];
 }, $employees);
+
+$stmt = $pdo->query(
+  'SELECT m.Id, m.Nummer, m.Type, m.Bericht, m.Opmerking, m.DatumAangemaakt, m.IsActief FROM Melding m ORDER BY m.Id DESC'
+);
+$meldingRows = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+$meldingen = array_map(function ($row) {
+  return [
+    'id' => (int)$row['Id'],
+    'gebruiker' => !empty($row['Opmerking']) ? $row['Opmerking'] : 'Systeem',
+    'onderwerp' => !empty($row['Opmerking']) ? $row['Opmerking'] : 'Melding',
+    'bericht' => $row['Bericht'],
+    'datum' => date('d-m-Y', strtotime($row['DatumAangemaakt'])),
+    'status' => ((int)$row['IsActief'] === 1) ? 'nieuw' : 'gesloten'
+  ];
+}, $meldingRows);
 ?>
 <!DOCTYPE html>
 <html lang="nl">
@@ -251,16 +301,13 @@ $medewerkers = array_map(function ($row) {
       <div class="form-card">
         <div class="form-title"><i class="ti ti-user-plus"></i> Nieuwe medewerker toevoegen</div>
 
-        <?php if (!empty($successMessage)) : ?>
-          <div class="success-banner auto-hide" data-auto-hide="true" style="background:#e8f7ed;color:#1f5b3b;border:1px solid #b7e1c5;padding:0.9rem 1rem;border-radius:10px;margin-bottom:1rem;opacity:1;transition:opacity 0.5s ease;">
-            <?= h($successMessage) ?>
-          </div>
-        <?php endif; ?>
-
-        <?php if (!empty($errorMessage)) : ?>
-          <div class="error-banner visible auto-hide" data-auto-hide="true" style="margin-bottom:1rem;opacity:1;transition:opacity 0.5s ease;">
-            <i class="ti ti-alert-circle"></i>
-            <div><?= h($errorMessage) ?></div>
+        <?php $employeeFlash = $flashMessages['medewerkers'] ?? null; ?>
+        <?php if ($employeeFlash) : ?>
+          <div class="<?= $employeeFlash['type'] === 'success' ? 'success-banner' : 'error-banner visible' ?> auto-hide" data-auto-hide="true" style="margin-bottom:1rem;opacity:1;transition:opacity 0.5s ease;">
+            <?php if ($employeeFlash['type'] === 'error') : ?>
+              <i class="ti ti-alert-circle"></i>
+            <?php endif; ?>
+            <div><?= h($employeeFlash['text']) ?></div>
           </div>
         <?php endif; ?>
 
@@ -269,23 +316,23 @@ $medewerkers = array_map(function ($row) {
           <div class="form-grid">
             <div class="form-group">
               <label for="mwVoornaam">Voornaam</label>
-              <input type="text" id="mwVoornaam" name="voornaam" placeholder="Voornaam" required>
+              <input type="text" id="mwVoornaam" name="voornaam" placeholder="Voornaam">
             </div>
             <div class="form-group">
               <label for="mwAchternaam">Achternaam</label>
-              <input type="text" id="mwAchternaam" name="achternaam" placeholder="Achternaam" required>
+              <input type="text" id="mwAchternaam" name="achternaam" placeholder="Achternaam">
             </div>
             <div class="form-group">
               <label for="mwEmail">E-mailadres</label>
-              <input type="email" id="mwEmail" name="email" placeholder="naam@voorbeeld.nl" required>
+              <input type="email" id="mwEmail" name="email" placeholder="naam@voorbeeld.nl">
             </div>
             <div class="form-group">
               <label for="mwWachtwoord">Wachtwoord</label>
-              <input type="password" id="mwWachtwoord" name="wachtwoord" placeholder="••••••••" required>
+              <input type="password" id="mwWachtwoord" name="wachtwoord" placeholder="••••••••">
             </div>
             <div class="form-group">
               <label for="mwRol">Rol / Functie</label>
-              <input type="text" id="mwRol" name="rol" placeholder="bijv. Acteur, Technicus..." required>
+              <input type="text" id="mwRol" name="rol" placeholder="bijv. Acteur, Technicus...">
             </div>
             <div class="form-group">
               <label for="mwStatus">Status</label>
@@ -337,7 +384,37 @@ $medewerkers = array_map(function ($row) {
     <div id="s-meldingen" class="section">
       <h1 class="page-title">Meldingen</h1>
       <p class="page-sub">Bekijk en beheer alle binnengekomen meldingen.</p>
-      <h2></h2>
+
+      <div class="form-card">
+        <div class="form-title"><i class="ti ti-send"></i> Nieuwe melding versturen</div>
+
+        <?php $messageFlash = $flashMessages['meldingen'] ?? null; ?>
+        <?php if ($messageFlash) : ?>
+          <div class="<?= $messageFlash['type'] === 'success' ? 'success-banner' : 'error-banner visible' ?> auto-hide" data-auto-hide="true" style="margin-bottom:1rem;opacity:1;transition:opacity 0.5s ease;">
+            <?php if ($messageFlash['type'] === 'error') : ?>
+              <i class="ti ti-alert-circle"></i>
+            <?php endif; ?>
+            <div><?= h($messageFlash['text']) ?></div>
+          </div>
+        <?php endif; ?>
+
+        <form method="POST" action="beheerdashboard.php">
+          <input type="hidden" name="add_message" value="1">
+          <div class="form-grid">
+            <div class="form-group full">
+              <label for="mlOnderwerp">Onderwerp</label>
+              <input type="text" id="mlOnderwerp" name="onderwerp" placeholder="Bijv. Technische storing">
+            </div>
+            <div class="form-group full">
+              <label for="mlBericht">Bericht</label>
+              <textarea id="mlBericht" name="bericht" rows="5" placeholder="Beschrijf je melding..."></textarea>
+            </div>
+          </div>
+          <button type="submit" class="form-submit">
+            <i class="ti ti-send"></i> Versturen
+          </button>
+        </form>
+      </div>
  
       <div class="toolbar">
         <div class="toolbar-left">
@@ -460,13 +537,7 @@ $medewerkers = array_map(function ($row) {
 =================================================== */
 const medewerkers = <?= json_encode($medewerkers, JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_HEX_AMP) ?>;
  
-const meldingen = [
-  { id:1, gebruiker:"Sophie Martens", onderwerp:"Technische storing lichten",  bericht:"Tijdens de repetitie van gisteren werkten de spotlights op scène 3 niet. Graag zo snel mogelijk repareren.", datum:"03-06-2025", status:"nieuw"    },
-  { id:2, gebruiker:"Lars de Vries",  onderwerp:"Roostering aanpassing",       bericht:"Ik ben helaas verhinderd op 15 juni. Kan iemand mijn dienst overnemen?",                                      datum:"01-06-2025", status:"open"     },
-  { id:3, gebruiker:"Noor Jansen",    onderwerp:"Materiaal bestelling",         bericht:"De stoffen voor de nieuwe kostuums zijn nog niet binnen. Kunnen we de leverancier contacteren?",               datum:"29-05-2025", status:"open"     },
-  { id:4, gebruiker:"Daan Bakker",    onderwerp:"Software update nodig",        bericht:"Het lichtbeheersysteem vraagt om een update. Dit vereist een korte downtime van ca. 30 minuten.",              datum:"28-05-2025", status:"gesloten" },
-  { id:5, gebruiker:"Emma van Loon",  onderwerp:"Aanvraag extra repetitie",     bericht:"Graag een extra repetitieruimte reserveren voor de cast van Hamlet op 20 juni.",                               datum:"25-05-2025", status:"nieuw"    },
-];
+const meldingen = <?= json_encode($meldingen, JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_HEX_AMP) ?>;
  
 let dbOnline     = true;
 let activeMelding = null;
@@ -497,10 +568,17 @@ function toonSectie(naam, el) {
   document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
   document.getElementById('s-' + naam).classList.add('active');
   document.querySelectorAll('.sidebar-item').forEach(s => s.classList.remove('active'));
-  if (el) el.classList.add('active');
+  if (el) {
+    el.classList.add('active');
+  } else {
+    const match = Array.from(document.querySelectorAll('.sidebar-item')).find(item =>
+      item.textContent.includes(naam.charAt(0).toUpperCase() + naam.slice(1))
+    );
+    if (match) match.classList.add('active');
+  }
   if (naam === 'medewerkers') renderMedewerkers();
   if (naam === 'meldingen')   renderMeldingen();
-  sluitSidebar(); // sidebar sluiten op mobiel na klik
+  sluitSidebar();
 }
  
 /* ===================================================
@@ -647,11 +725,14 @@ function cap(s) { return s.charAt(0).toUpperCase() + s.slice(1); }
    INITIALISATIE
 =================================================== */
 const params = new URLSearchParams(window.location.search);
-if (params.get('section') === 'medewerkers') {
-  const medewerkerLink = document.querySelector('[onclick*="toonSectie(\'medewerkers\'"]');
-  toonSectie('medewerkers', medewerkerLink);
+const requestedSection = params.get('section');
+
+if (requestedSection === 'medewerkers') {
+  toonSectie('medewerkers', null);
+} else if (requestedSection === 'meldingen') {
+  toonSectie('meldingen', null);
 } else {
-  renderMedewerkers();
+  toonSectie('dashboard', null);
 }
 
 setTimeout(() => {
