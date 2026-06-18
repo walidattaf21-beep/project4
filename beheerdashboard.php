@@ -1,6 +1,112 @@
 <?php
-// Aurora Theater – Beheerdashboard
-// Verbind hier je database logica
+session_start();
+require_once __DIR__ . '/database/config.php';
+
+function h($value) {
+  return htmlspecialchars((string)$value, ENT_QUOTES, 'UTF-8');
+}
+
+$successMessage = $_SESSION['success_message'] ?? null;
+$errorMessage   = $_SESSION['error_message'] ?? null;
+unset($_SESSION['success_message'], $_SESSION['error_message']);
+
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['add_employee'])) {
+  $voornaam = trim($_POST['voornaam'] ?? '');
+  $achternaam = trim($_POST['achternaam'] ?? '');
+  $email = trim($_POST['email'] ?? '');
+  $wachtwoord = $_POST['wachtwoord'] ?? '';
+  $rol = trim($_POST['rol'] ?? '');
+  $status = $_POST['status'] ?? 'actief';
+
+  if ($voornaam === '' || $achternaam === '' || $email === '' || $wachtwoord === '' || $rol === '') {
+    $_SESSION['error_message'] = 'Vul alle verplichte velden in.';
+  } elseif (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
+    $_SESSION['error_message'] = 'Vul een geldig e-mailadres in.';
+  } else {
+    $stmt = $pdo->prepare('SELECT Id FROM Contact WHERE Email = :email');
+    $stmt->execute([':email' => $email]);
+
+    if ($stmt->fetch()) {
+      $_SESSION['error_message'] = 'E-mailadres bestaat al.';
+    } else {
+      try {
+        $pdo->beginTransaction();
+
+        $gebruikersnaam = strtolower(str_replace(' ', '', $voornaam . '.' . $achternaam . '.' . time()));
+        $hashedPassword = password_hash($wachtwoord, PASSWORD_DEFAULT);
+
+        $stmt = $pdo->prepare(
+          'INSERT INTO Gebruiker (Voornaam, Tussenvoegsel, Achternaam, Gebruikersnaam, Wachtwoord, IsIngelogd, IsActief) VALUES (:voornaam, :tussenvoegsel, :achternaam, :gebruikersnaam, :wachtwoord, 0, :is_actief)'
+        );
+        $stmt->execute([
+          ':voornaam' => $voornaam,
+          ':tussenvoegsel' => null,
+          ':achternaam' => $achternaam,
+          ':gebruikersnaam' => $gebruikersnaam,
+          ':wachtwoord' => $hashedPassword,
+          ':is_actief' => ($status === 'actief' ? 1 : 0),
+        ]);
+        $gebruikerId = (int)$pdo->lastInsertId();
+
+        $stmt = $pdo->prepare(
+          'INSERT INTO Contact (GebruikerId, Email, Mobiel, IsActief) VALUES (:gebruiker_id, :email, :mobiel, 1)'
+        );
+        $stmt->execute([
+          ':gebruiker_id' => $gebruikerId,
+          ':email' => $email,
+          ':mobiel' => '+31600000000'
+        ]);
+
+        $stmt = $pdo->prepare(
+          'INSERT INTO Rol (GebruikerId, Naam, IsActief) VALUES (:gebruiker_id, :naam, 1)'
+        );
+        $stmt->execute([
+          ':gebruiker_id' => $gebruikerId,
+          ':naam' => $rol
+        ]);
+
+        $stmt = $pdo->prepare(
+          'INSERT INTO Medewerker (GebruikerId, Nummer, Medewerkersoort, IsActief) VALUES (:gebruiker_id, :nummer, :medewerkersoort, :is_actief)'
+        );
+        $stmt->execute([
+          ':gebruiker_id' => $gebruikerId,
+          ':nummer' => 100000 + $gebruikerId,
+          ':medewerkersoort' => $rol,
+          ':is_actief' => ($status === 'actief' ? 1 : 0)
+        ]);
+
+        $pdo->commit();
+        $_SESSION['success_message'] = 'Medewerker is succesvol toegevoegd.';
+      } catch (Exception $e) {
+        $pdo->rollBack();
+        $_SESSION['error_message'] = 'Er is iets misgegaan bij het opslaan.';
+      }
+    }
+  }
+
+  header('Location: beheerdashboard.php?section=medewerkers');
+  exit;
+}
+
+$stmt = $pdo->query(
+  'SELECT g.Id, g.Voornaam, g.Achternaam, g.IsActief, c.Email, r.Naam AS RolNaam FROM Gebruiker g LEFT JOIN Contact c ON c.GebruikerId = g.Id LEFT JOIN Rol r ON r.GebruikerId = g.Id AND r.IsActief = 1 ORDER BY g.Id DESC'
+);
+$employees = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+$medewerkers = array_map(function ($row) {
+  $naam = trim($row['Voornaam'] . ' ' . $row['Achternaam']);
+  $rol = !empty($row['RolNaam']) ? $row['RolNaam'] : 'Onbekend';
+  $status = ((int)$row['IsActief'] === 1) ? 'actief' : 'inactief';
+  $init = strtoupper(substr($row['Voornaam'], 0, 1) . substr($row['Achternaam'], 0, 1));
+  return [
+    'id' => (int)$row['Id'],
+    'naam' => $naam,
+    'rol' => $rol,
+    'init' => $init,
+    'av' => ['av-gold', 'av-purple', 'av-teal', 'av-blue'][((int)$row['Id'] - 1) % 4],
+    'status' => $status,
+  ];
+}, $employees);
 ?>
 <!DOCTYPE html>
 <html lang="nl">
@@ -144,31 +250,55 @@
  
       <div class="form-card">
         <div class="form-title"><i class="ti ti-user-plus"></i> Nieuwe medewerker toevoegen</div>
-        <div class="form-grid">
-          <div class="form-group">
-            <label>Voornaam</label>
-            <input type="text" id="mwVoornaam" placeholder="Voornaam">
+
+        <?php if (!empty($successMessage)) : ?>
+          <div class="success-banner" style="background:#e8f7ed;color:#1f5b3b;border:1px solid #b7e1c5;padding:0.9rem 1rem;border-radius:10px;margin-bottom:1rem;">
+            <?= h($successMessage) ?>
           </div>
-          <div class="form-group">
-            <label>Achternaam</label>
-            <input type="text" id="mwAchternaam" placeholder="Achternaam">
+        <?php endif; ?>
+
+        <?php if (!empty($errorMessage)) : ?>
+          <div class="error-banner visible" style="margin-bottom:1rem;">
+            <i class="ti ti-alert-circle"></i>
+            <div><?= h($errorMessage) ?></div>
           </div>
-          <div class="form-group">
-            <label>Rol / Functie</label>
-            <input type="text" id="mwRol" placeholder="bijv. Acteur, Technicus...">
+        <?php endif; ?>
+
+        <form method="POST" action="beheerdashboard.php">
+          <input type="hidden" name="add_employee" value="1">
+          <div class="form-grid">
+            <div class="form-group">
+              <label for="mwVoornaam">Voornaam</label>
+              <input type="text" id="mwVoornaam" name="voornaam" placeholder="Voornaam" required>
+            </div>
+            <div class="form-group">
+              <label for="mwAchternaam">Achternaam</label>
+              <input type="text" id="mwAchternaam" name="achternaam" placeholder="Achternaam" required>
+            </div>
+            <div class="form-group">
+              <label for="mwEmail">E-mailadres</label>
+              <input type="email" id="mwEmail" name="email" placeholder="naam@voorbeeld.nl" required>
+            </div>
+            <div class="form-group">
+              <label for="mwWachtwoord">Wachtwoord</label>
+              <input type="password" id="mwWachtwoord" name="wachtwoord" placeholder="••••••••" required>
+            </div>
+            <div class="form-group">
+              <label for="mwRol">Rol / Functie</label>
+              <input type="text" id="mwRol" name="rol" placeholder="bijv. Acteur, Technicus..." required>
+            </div>
+            <div class="form-group">
+              <label for="mwStatus">Status</label>
+              <select id="mwStatus" name="status">
+                <option value="actief">Actief</option>
+                <option value="inactief">Inactief</option>
+              </select>
+            </div>
           </div>
-          <div class="form-group">
-            <label>Status</label>
-            <select id="mwStatus">
-              <option value="actief">Actief</option>
-              <option value="verlof">Verlof</option>
-              <option value="inactief">Inactief</option>
-            </select>
-          </div>
-        </div>
-        <button class="form-submit" onclick="voegMedewerkerToe()">
-          <i class="ti ti-plus"></i> Toevoegen
-        </button>
+          <button type="submit" class="form-submit">
+            <i class="ti ti-plus"></i> Opslaan
+          </button>
+        </form>
       </div>
  
       <div class="toolbar">
@@ -328,16 +458,7 @@
 /* ===================================================
    DATA
 =================================================== */
-const medewerkers = [
-  { id:1, naam:"Sophie Martens",  rol:"Theaterregisseur",  init:"SM", av:"av-gold",   status:"actief"   },
-  { id:2, naam:"Lars de Vries",   rol:"Acteur",            init:"LV", av:"av-purple", status:"actief"   },
-  { id:3, naam:"Noor Jansen",     rol:"Kostuumontwerper",  init:"NJ", av:"av-teal",   status:"verlof"   },
-  { id:4, naam:"Daan Bakker",     rol:"Lichtontwerper",    init:"DB", av:"av-blue",   status:"actief"   },
-  { id:5, naam:"Emma van Loon",   rol:"Actrice",           init:"EV", av:"av-gold",   status:"actief"   },
-  { id:6, naam:"Thijs Smit",      rol:"Geluidstechnicus",  init:"TS", av:"av-purple", status:"inactief" },
-  { id:7, naam:"Lisa Hoekstra",   rol:"Toneelmeester",     init:"LH", av:"av-teal",   status:"actief"   },
-  { id:8, naam:"Roel Peters",     rol:"Kaartverkoper",     init:"RP", av:"av-blue",   status:"verlof"   },
-];
+const medewerkers = <?= json_encode($medewerkers, JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_HEX_AMP) ?>;
  
 const meldingen = [
   { id:1, gebruiker:"Sophie Martens", onderwerp:"Technische storing lichten",  bericht:"Tijdens de repetitie van gisteren werkten de spotlights op scène 3 niet. Graag zo snel mogelijk repareren.", datum:"03-06-2025", status:"nieuw"    },
@@ -525,7 +646,13 @@ function cap(s) { return s.charAt(0).toUpperCase() + s.slice(1); }
 /* ===================================================
    INITIALISATIE
 =================================================== */
-renderMedewerkers();
+const params = new URLSearchParams(window.location.search);
+if (params.get('section') === 'medewerkers') {
+  const medewerkerLink = document.querySelector('[onclick*="toonSectie(\'medewerkers\'"]');
+  toonSectie('medewerkers', medewerkerLink);
+} else {
+  renderMedewerkers();
+}
 </script>
 </body>
 </html>
