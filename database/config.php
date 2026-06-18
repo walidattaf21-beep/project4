@@ -1,5 +1,4 @@
 <?php
-
 $host = "localhost";
 // $dbname = "Aurora_OfflineTest";
 $dbname = "Aurora";
@@ -7,6 +6,9 @@ $username = "root";
 $password = "";
 
 try {
+    if (empty($dbname)) {
+        throw new PDOException("Geen database geselecteerd in config.php");
+    }
     $pdo = new PDO(
         "mysql:host=$host;dbname=$dbname;charset=utf8mb4",
         $username,

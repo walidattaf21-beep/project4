@@ -54,6 +54,7 @@ nav a:hover {
 .buttons {
     display: flex;
     gap: 15px;
+    align-items: center;
 }
 
 .login-btn {
@@ -69,24 +70,8 @@ nav a:hover {
     text-decoration: none;
 }
 
-/* Hamburger menu toggle button */
 .menu-toggle {
     display: none;
-    background: transparent;
-    border: none;
-    color: #d4a75d;
-    font-size: 24px;
-    cursor: pointer;
-    padding: 5px;
-    transition: color 0.3s ease, transform 0.2s ease;
-}
-
-.menu-toggle:hover {
-    color: #ffe8c2;
-}
-
-.menu-toggle:active {
-    transform: scale(0.9);
 }
 
 /* ================= HERO ================= */
@@ -222,75 +207,205 @@ nav a:hover {
 
 /* ================= FOOTER ================= */
 
-footer {
-    background: #0f0818;
+.site-footer {
+    background: #06030d;
     color: white;
-
-    text-align: center;
-
-    padding: 30px;
+    border-top: 1px solid rgba(212, 167, 93, 0.15);
+    font-family: 'Montserrat', sans-serif;
 }
 
-.footer-links {
-    margin: 20px 0;
+.footer-inner {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 60px 50px 40px;
+    display: grid;
+    grid-template-columns: 2fr 1fr 1fr 1.5fr;
+    gap: 40px;
 }
 
-.footer-links a {
-    color: white;
-    margin: 0 15px;
+/* Branding kolom */
+.footer-brand {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+.footer-logo {
+    display: flex;
+    flex-direction: column;
+    line-height: 1;
+}
+
+.footer-logo-main {
+    font-family: 'Playfair Display', Georgia, serif;
+    font-size: 28px;
+    font-weight: 700;
+    letter-spacing: 4px;
+    background: linear-gradient(135deg, #ffe8c2, #d4a75d);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+}
+
+.footer-logo-sub {
+    font-size: 10px;
+    letter-spacing: 5px;
+    color: rgba(212, 167, 93, 0.6);
+    text-transform: uppercase;
+    margin-top: 2px;
+}
+
+.footer-tagline {
+    font-size: 13px;
+    color: rgba(255, 255, 255, 0.5);
+    line-height: 1.7;
+    max-width: 260px;
+}
+
+/* Social media iconen */
+.footer-socials {
+    display: flex;
+    gap: 10px;
+    margin-top: 5px;
+}
+
+.footer-socials a {
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    border: 1px solid rgba(212, 167, 93, 0.3);
+    color: rgba(212, 167, 93, 0.8);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 14px;
     text-decoration: none;
+    transition: all 0.3s ease;
+}
+
+.footer-socials a:hover {
+    background: #d4a75d;
+    color: #000;
+    border-color: #d4a75d;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(212, 167, 93, 0.35);
+}
+
+/* Overige kolommen */
+.footer-col h4.footer-col-title {
+    font-family: 'Montserrat', sans-serif;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 2.5px;
+    text-transform: uppercase;
+    color: #d4a75d;
+    margin-bottom: 18px;
+    padding-bottom: 10px;
+    border-bottom: 1px solid rgba(212, 167, 93, 0.15);
+}
+
+.footer-col ul {
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.footer-col ul li a {
+    color: rgba(255, 255, 255, 0.55);
+    text-decoration: none;
+    font-size: 13px;
+    transition: color 0.25s ease;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.footer-col ul li a:hover {
+    color: #d4a75d;
+}
+
+/* Contact lijst */
+.footer-contact-list {
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.footer-contact-list li {
+    font-size: 13px;
+    color: rgba(255, 255, 255, 0.55);
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    line-height: 1.5;
+}
+
+.footer-contact-list li i {
+    color: #d4a75d;
+    margin-top: 2px;
+    width: 14px;
+    flex-shrink: 0;
+}
+
+/* Footer bottom balk */
+.footer-bottom {
+    border-top: 1px solid rgba(255, 255, 255, 0.06);
+    text-align: center;
+    padding: 18px 50px;
+}
+
+.footer-bottom p {
+    font-size: 12px;
+    color: rgba(255, 255, 255, 0.3);
+    letter-spacing: 0.5px;
 }
 
 /* ================= RESPONSIVE ================= */
 
 @media(max-width:768px) {
     header {
-        flex-direction: row;
-        justify-content: space-between;
-        align-items: center;
         flex-wrap: wrap;
-        padding: 20px 30px;
+        padding: 15px 30px;
     }
 
     .menu-toggle {
         display: block;
-        /* Show hamburger button on mobile */
+        background: transparent;
+        border: none;
+        color: #d4a75d;
+        font-size: 24px;
+        cursor: pointer;
+        outline: none;
     }
 
     nav {
         display: none;
-        /* Hide navigation links by default on mobile */
         width: 100%;
         order: 3;
         margin-top: 15px;
-        border-top: 1px solid rgba(255, 255, 255, 0.1);
-        padding-top: 15px;
     }
 
     nav.active {
         display: block;
-        /* Show links when active class is toggled */
     }
 
     nav ul {
         flex-direction: column;
         gap: 15px;
-        text-align: center;
+        align-items: center;
     }
 
     .buttons {
         display: none;
-        /* Hide action buttons by default on mobile */
         width: 100%;
         order: 4;
         justify-content: center;
         margin-top: 15px;
-        padding-bottom: 10px;
     }
 
     .buttons.active {
         display: flex;
-        /* Show action buttons when active class is toggled */
     }
 
     .hero-content {
@@ -314,6 +429,31 @@ footer {
         flex-direction: column;
         align-items: center;
         gap: 20px;
+    }
+
+    /* Footer Responsive */
+    .footer-inner {
+        grid-template-columns: 1fr;
+        padding: 40px 20px 30px;
+        gap: 30px;
+    }
+
+    .footer-bottom {
+        padding: 16px 20px;
+    }
+
+    .footer-brand {
+        align-items: center;
+        text-align: center;
+    }
+
+    .footer-tagline {
+        max-width: 100%;
+        text-align: center;
+    }
+
+    .footer-socials {
+        justify-content: center;
     }
 }
 
