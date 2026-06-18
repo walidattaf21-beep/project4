@@ -46,7 +46,7 @@ require_once 'database/config.php';
 
           <!-- Login en registratie knoppen -->
         <div class="buttons">
-            <a href="inloggen.php" class="login-btn">Inloggen</a>
+            <a href="login.php" class="login-btn">Inloggen</a>
             <a href="registreren.php" class="register-btn">Registreren</a>
         </div>
 
