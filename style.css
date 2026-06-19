@@ -1,60 +1,71 @@
 @import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700&family=Playfair+Display:ital,wght@0,500;0,600;0,700;1,400&display=swap');
 
-/* Algemene instellingen */
+/* Algemene instellingen en basislay-out */
 * {
     margin: 0;
     padding: 0;
     box-sizing: border-box;
 }
 
-/* Basis styling body */
 body {
     font-family: Arial, sans-serif;
     background-color: #ffffff;
+    line-height: 1.5;
 }
 
-/* ================= HEADER ================= */
-
+/* ================= HEADER / NAVIGATIE ================= */
 header {
     background: #0f0818;
     color: white;
-
     display: flex;
     justify-content: space-between;
     align-items: center;
+    gap: 16px;
+    padding: 18px 50px;
+    flex-wrap: wrap;
+}
 
-    padding: 20px 50px;
+.logo {
+    display: flex;
+    flex-direction: column;
+    line-height: 1;
 }
 
 .logo h1 {
     color: #d4a75d;
+    font-size: clamp(1.8rem, 2.5vw, 2.4rem);
 }
 
 .logo span {
     font-size: 12px;
+    letter-spacing: 0.3em;
+    text-transform: uppercase;
 }
 
-/* Menu */
 nav ul {
     list-style: none;
     display: flex;
     gap: 25px;
+    align-items: center;
+    flex-wrap: wrap;
 }
 
 nav a {
     color: white;
     text-decoration: none;
+    transition: color 0.2s ease;
 }
 
 nav a:hover {
     color: #d4a75d;
 }
 
-/* Login en registratie */
+/* Rechtermenu met login / registratie / account */
 .buttons {
     display: flex;
-    gap: 15px;
+    gap: 12px;
     align-items: center;
+    flex-wrap: wrap;
 }
 
 .login-btn,
@@ -63,6 +74,7 @@ nav a:hover {
     font-weight: 600;
     border-radius: 999px;
     padding: 10px 16px;
+    white-space: nowrap;
 }
 
 .login-btn {
@@ -84,6 +96,7 @@ nav a:hover {
     padding: 10px 14px;
     border-radius: 999px;
     border: 1px solid #5f4a23;
+    white-space: nowrap;
 }
 
 .account-btn i {
@@ -103,6 +116,7 @@ nav a:hover {
     display: none;
 }
 
+/* Flashmeldingen voor login / logout */
 .auth-flash {
     padding: 14px 18px;
     text-align: center;
@@ -122,60 +136,53 @@ nav a:hover {
     color: #9c2626;
 }
 
-/* ================= HERO ================= */
-
+/* ================= HERO SECTION ================= */
 .hero {
-    height: 600px;
-
-    /* Achtergrond afbeelding */
+    min-height: 600px;
     background-image: url("../images/theater.jpg");
     background-size: cover;
     background-position: center;
+    background-repeat: no-repeat;
 }
 
-/* Donkere laag over afbeelding */
 .overlay {
     background: rgba(0, 0, 0, 0.55);
-
-    height: 100%;
-
+    min-height: 600px;
     display: flex;
     align-items: center;
+    padding: 40px 20px;
 }
 
 .hero-content {
-    margin-left: 80px;
+    margin-left: clamp(20px, 5vw, 80px);
     color: white;
+    max-width: 560px;
 }
 
 .hero-content h2 {
-    font-size: 60px;
+    font-size: clamp(2.8rem, 5vw, 3.75rem);
+    line-height: 1;
     margin-bottom: 20px;
 }
 
 .hero-content p {
-    width: 500px;
+    width: min(100%, 500px);
     line-height: 1.8;
 }
 
 .cta-btn {
     display: inline-block;
-
     margin-top: 25px;
-
     background: #d4a75d;
     color: black;
-
     text-decoration: none;
-
     padding: 15px 25px;
     border-radius: 6px;
 }
 
 /* ================= VOORSTELLINGEN ================= */
-
 .shows {
-    padding: 50px;
+    padding: 50px 20px;
 }
 
 .section-title {
@@ -183,19 +190,19 @@ nav a:hover {
 }
 
 .show-container {
-    display: flex;
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
     gap: 20px;
+    align-items: stretch;
 }
 
 .show-card {
-    width: 350px;
-
+    width: 100%;
+    max-width: 350px;
+    margin: 0 auto;
     background: white;
-
     border-radius: 10px;
-
     overflow: hidden;
-
     box-shadow: 0px 3px 10px rgba(0, 0, 0, 0.2);
 }
 
@@ -224,37 +231,32 @@ nav a:hover {
 
 .show-info a {
     display: inline-block;
-
     margin-top: 15px;
-
     background: #0f0818;
     color: white;
-
     padding: 10px 15px;
-
     text-decoration: none;
     border-radius: 5px;
 }
 
 /* ================= USP SECTION ================= */
-
 .usp {
     background: #1c1128;
-
     color: white;
-
-    display: flex;
-    justify-content: space-around;
-
-    padding: 40px;
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 24px;
+    padding: 40px 20px;
 }
 
 .usp-box {
-    width: 250px;
+    width: 100%;
+    max-width: 250px;
+    margin: 0 auto;
+    text-align: center;
 }
 
 /* ================= FOOTER ================= */
-
 .site-footer {
     background: #06030d;
     color: white;
@@ -267,7 +269,7 @@ nav a:hover {
     margin: 0 auto;
     padding: 60px 50px 40px;
     display: grid;
-    grid-template-columns: 2fr 1fr 1fr 1.5fr;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
     gap: 40px;
 }
 
@@ -411,10 +413,19 @@ nav a:hover {
 
 /* ================= RESPONSIVE ================= */
 
-@media(max-width:768px) {
+@media (max-width: 1024px) {
     header {
-        flex-wrap: wrap;
-        padding: 15px 30px;
+        padding: 18px 30px;
+    }
+
+    .hero-content {
+        max-width: 480px;
+    }
+}
+
+@media (max-width: 768px) {
+    header {
+        padding: 15px 20px;
     }
 
     .menu-toggle {
@@ -431,7 +442,7 @@ nav a:hover {
         display: none;
         width: 100%;
         order: 3;
-        margin-top: 15px;
+        margin-top: 10px;
     }
 
     nav.active {
@@ -449,39 +460,37 @@ nav a:hover {
         width: 100%;
         order: 4;
         justify-content: center;
-        margin-top: 15px;
+        margin-top: 10px;
     }
 
     .buttons.active {
         display: flex;
     }
 
-    .hero-content {
-        margin: 20px;
+    .overlay {
+        padding: 30px 15px;
     }
 
-    .hero-content h2 {
-        font-size: 40px;
+    .hero-content {
+        margin: 0;
+        text-align: center;
     }
 
     .hero-content p {
         width: 100%;
+        max-width: 100%;
     }
 
-    .show-container {
-        flex-direction: column;
-        align-items: center;
+    .shows {
+        padding: 40px 15px;
     }
 
     .usp {
-        flex-direction: column;
-        align-items: center;
         gap: 20px;
+        padding: 35px 15px;
     }
 
-    /* Footer Responsive */
     .footer-inner {
-        grid-template-columns: 1fr;
         padding: 40px 20px 30px;
         gap: 30px;
     }
@@ -502,6 +511,45 @@ nav a:hover {
 
     .footer-socials {
         justify-content: center;
+    }
+}
+
+@media (max-width: 480px) {
+    header {
+        padding: 14px 16px;
+    }
+
+    .buttons {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .login-btn,
+    .register-btn,
+    .account-btn {
+        width: 100%;
+        justify-content: center;
+    }
+
+    .hero {
+        min-height: 520px;
+    }
+
+    .overlay {
+        min-height: 520px;
+    }
+
+    .hero-content h2 {
+        font-size: 2.4rem;
+    }
+
+    .cta-btn {
+        width: 100%;
+        text-align: center;
+    }
+
+    .show-card img {
+        height: 190px;
     }
 }
 
