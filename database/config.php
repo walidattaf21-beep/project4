@@ -1,5 +1,5 @@
 <?php
-// unhappy senario
+// unhappy senario letter verwijderen
 $host = "localhost";
 // $dbname = "Aurora_OfflineTest";
 $dbname = "Aurora";
