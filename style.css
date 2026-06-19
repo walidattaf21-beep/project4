@@ -57,10 +57,21 @@ nav a:hover {
     align-items: center;
 }
 
-.login-btn {
-    color: white;
+.login-btn,
+.register-btn {
     text-decoration: none;
     font-weight: 600;
+    border-radius: 999px;
+    padding: 10px 16px;
+}
+
+.login-btn {
+    color: white;
+}
+
+.register-btn {
+    background: #d4a75d;
+    color: #0f0818;
 }
 
 .account-btn {
@@ -97,6 +108,8 @@ nav a:hover {
     text-align: center;
     font-weight: 700;
     font-size: 14px;
+    opacity: 1;
+    transition: opacity 0.5s ease;
 }
 
 .auth-flash-success {

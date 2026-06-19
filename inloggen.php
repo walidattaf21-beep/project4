@@ -144,6 +144,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             </form>
             <div class="auth-links">
                 <a href="homepaginamaken.php">Terug naar home</a>
+                <span> · </span>
+                <a href="registreren.php">Registreren</a>
             </div>
         </div>
     </div>

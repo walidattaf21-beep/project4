@@ -46,6 +46,7 @@ function h($value) {
             </a>
         <?php else: ?>
             <a href="<?php echo $root_prefix; ?>inloggen.php" class="login-btn">Inloggen</a>
+            <a href="<?php echo $root_prefix; ?>registreren.php" class="register-btn">Registreren</a>
         <?php endif; ?>
     </div>
 

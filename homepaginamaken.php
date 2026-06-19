@@ -59,6 +59,7 @@ function h($value) {
                 </a>
             <?php else: ?>
                 <a href="inloggen.php" class="login-btn">Inloggen</a>
+                <a href="registreren.php" class="register-btn">Registreren</a>
             <?php endif; ?>
         </div>
  
@@ -70,9 +71,22 @@ function h($value) {
         </header>
  
     <?php if ($flash): ?>
-        <div class="auth-flash auth-flash-<?= h($flash['type']) ?>">
+        <div class="auth-flash auth-flash-<?= h($flash['type']) ?>" id="auth-flash">
             <?= h($flash['message']) ?>
         </div>
+        <script>
+            document.addEventListener('DOMContentLoaded', function () {
+                const flash = document.getElementById('auth-flash');
+                if (!flash) return;
+
+                setTimeout(function () {
+                    flash.style.opacity = '0';
+                    setTimeout(function () {
+                        flash.style.display = 'none';
+                    }, 500);
+                }, 4000);
+            });
+        </script>
     <?php endif; ?>
 
     <!-- ================= HERO SECTION ================= -->
