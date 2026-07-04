@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Voorstellingen - Aurora Theater</title>
+    <title>Overzicht Voorstellingen - Aurora Theater</title>
 
     <!-- Gedeelde stijlen (navbar / footer) -->
     <link rel="stylesheet" href="../style.css">
@@ -60,6 +60,7 @@
                     <th>Tijd</th>
                     <th>Capaciteit</th>
                     <th>Status</th>
+                    <th>Acties</th>
                 </tr>
             </thead>
 
@@ -81,6 +82,11 @@
                         <?php else: ?>
                             <span class="status rood">Geannuleerd</span>
                         <?php endif; ?>
+                    </td>
+                    <td data-label="Acties">
+                        <a href="voorstelling-wijzigen.php?id=<?= (int)$voorstelling['Id']; ?>" class="btn-wijzigen" id="btn-wijzigen-<?= (int)$voorstelling['Id']; ?>">
+                            ✏️ Wijzigen
+                        </a>
                     </td>
                 </tr>
 
