@@ -1,6 +1,6 @@
 <?php
 // unhappy senario letter verwijderen als je een letter van de host wijzigt, dan krijg je een error dat er geen database geselecteerd is, dit is om te voorkomen dat er een foutieve verbinding wordt gemaakt
-$host = "localhost";
+$host = "";
 // $dbname = "Aurora_OfflineTest";
 $dbname = "Aurora";
 $username = "root";
