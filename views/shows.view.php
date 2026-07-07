@@ -7,13 +7,13 @@
     <title>Voorstellingen - Aurora Theater</title>
 
     <!-- Gedeelde stijlen (navbar / footer) -->
-    <link rel="stylesheet" href="../style.css">
+    <link rel="stylesheet" href="../style.css?v=<?= time(); ?>">
 
     <!-- Font Awesome (hamburger menu iconen) -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
     <!-- Pagina-specifieke stijlen -->
-    <link rel="stylesheet" href="overzichtvoorstellingen.css">
+    <link rel="stylesheet" href="overzichtvoorstellingen.css?v=<?= time(); ?>">
 </head>
 
 <body>
@@ -88,7 +88,7 @@
                         <?php endif; ?>
                     </td>
                     <td data-label="Acties">
-                        <div class="acties-knoppen" style="display: flex; gap: 8px; align-items: center;">
+                        <div class="acties-knoppen">
                             <a href="voorstelling-wijzigen.php?id=<?= (int)$voorstelling['Id']; ?>"
                                class="btn-wijzigen"
                                id="btn-wijzigen-<?= (int)$voorstelling['Id']; ?>">

@@ -171,7 +171,7 @@ $meldingen = array_map(function ($row) {
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Aurora Theater – Beheerdashboard</title>
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/tabler-icons.min.css">
-  <link rel="stylesheet" href="dashboard.css">
+  <link rel="stylesheet" href="dashboard.css?v=<?= time(); ?>">
 </head>
 <body>
  
