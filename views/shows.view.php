@@ -43,6 +43,10 @@
             <div class="flash flash-error"><?= htmlspecialchars($_SESSION['flash_error']); ?></div>
             <?php unset($_SESSION['flash_error']); ?>
         <?php endif; ?>
+        <?php if (!empty($_SESSION['flash_info'])): ?>
+            <div class="flash flash-info"><?= htmlspecialchars($_SESSION['flash_info']); ?></div>
+            <?php unset($_SESSION['flash_info']); ?>
+        <?php endif; ?>
 
         <?php if (empty($voorstellingen)): ?>
 
