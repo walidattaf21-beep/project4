@@ -22,7 +22,7 @@ function h($value) {
     </a>
 
     <!-- Navigatiemenu -->
-    <nav>
+    <nav id="main-nav">
         <ul>
             <li><a href="<?php echo $root_prefix; ?>homepaginamaken.php">Home</a></li>
             <li><a href="<?php echo $root_prefix; ?>overzicht voorstellingen/overzichtvoorstellingen.php">Voorstellingen</a></li>
@@ -35,7 +35,7 @@ function h($value) {
         </ul>
     </nav>
 
-    <div class="buttons">
+    <div class="buttons" id="nav-actions">
         <?php if (isLoggedIn()):
             $user = currentUser();
         ?>
