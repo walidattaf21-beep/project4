@@ -73,6 +73,34 @@ h1 {
     color: #ffffff;
 }
 
+/* ===== KNOP: VERWIJDEREN ===== */
+.btn-verwijderen {
+    display: inline-block;
+    background-color: #dc2626;
+    color: #ffffff;
+    text-decoration: none;
+    border-radius: 6px;
+    padding: 6px 14px;
+    font-size: 13px;
+    font-weight: 600;
+    font-family: 'Inter', Arial, sans-serif;
+    transition: background-color 0.2s ease;
+    white-space: nowrap;
+}
+
+.btn-verwijderen:hover {
+    background-color: #b91c1c;
+    text-decoration: none;
+    color: #ffffff;
+}
+
+/* Flash info (bij annuleren) */
+.flash-info {
+    background-color: #e0f2fe;
+    border: 1px solid #7dd3fc;
+    color: #0c4a6e;
+}
+
 /* Geen resultaten melding */
 .geen-resultaten {
     text-align: center;
