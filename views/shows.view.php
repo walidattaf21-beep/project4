@@ -88,16 +88,18 @@
                         <?php endif; ?>
                     </td>
                     <td data-label="Acties">
-                        <a href="voorstelling-wijzigen.php?id=<?= (int)$voorstelling['Id']; ?>"
-                           class="btn-wijzigen"
-                           id="btn-wijzigen-<?= (int)$voorstelling['Id']; ?>">
-                            ✏️ Wijzigen
-                        </a>
-                        <a href="voorstelling-verwijderen.php?id=<?= (int)$voorstelling['Id']; ?>"
-                           class="btn-verwijderen"
-                           id="btn-verwijderen-<?= (int)$voorstelling['Id']; ?>">
-                            🗑️ Verwijderen
-                        </a>
+                        <div class="acties-knoppen" style="display: flex; gap: 8px; align-items: center;">
+                            <a href="voorstelling-wijzigen.php?id=<?= (int)$voorstelling['Id']; ?>"
+                               class="btn-wijzigen"
+                               id="btn-wijzigen-<?= (int)$voorstelling['Id']; ?>">
+                                ✏️ Wijzigen
+                            </a>
+                            <a href="voorstelling-verwijderen.php?id=<?= (int)$voorstelling['Id']; ?>"
+                               class="btn-verwijderen"
+                               id="btn-verwijderen-<?= (int)$voorstelling['Id']; ?>">
+                                🗑️ Verwijderen
+                            </a>
+                        </div>
                     </td>
                 </tr>
 

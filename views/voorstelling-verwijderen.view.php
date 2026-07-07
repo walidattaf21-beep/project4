@@ -135,13 +135,13 @@
             font-family: Arial, sans-serif;
             border: none;
             cursor: pointer;
-            background-color: #dc2626;
+            background-color: red;
             color: #ffffff;
             transition: background-color 0.2s ease;
         }
 
         .btn-verwijderen:hover {
-            background-color: #b91c1c;
+            background-color: darkred;
         }
 
         @media (max-width: 500px) {

@@ -60,6 +60,68 @@ class ShowController {
         exit;
     }
 
+    public function edit() {
+        $id = (int)($_GET['id'] ?? 0);
+
+        if ($id <= 0) {
+            header('Location: ../overzicht voorstellingen/overzichtvoorstellingen.php');
+            exit;
+        }
+
+        if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+            $this->update($id);
+        } else {
+            $voorstelling = Show::getById($id);
+            if (!$voorstelling) {
+                $_SESSION['flash_error'] = 'Voorstelling niet gevonden.';
+                header('Location: ../overzicht voorstellingen/overzichtvoorstellingen.php');
+                exit;
+            }
+            require_once __DIR__ . '/../views/voorstelling-wijzigen.view.php';
+        }
+    }
+
+    private function update($id) {
+        $naam         = trim($_POST['naam'] ?? '');
+        $beschrijving = trim($_POST['beschrijving'] ?? '');
+        $datum        = $_POST['datum'] ?? '';
+        $tijd         = $_POST['tijd'] ?? '';
+        $maxTickets   = (int)($_POST['max_tickets'] ?? 0);
+        $beschikbaarheid = $_POST['beschikbaarheid'] ?? 'Ingepland';
+
+        if (empty($naam) || empty($datum) || empty($tijd) || $maxTickets <= 0) {
+            $_SESSION['flash_error'] = 'Vul alle verplichte velden correct in.';
+            $voorstelling = Show::getById($id);
+            require_once __DIR__ . '/../views/voorstelling-wijzigen.view.php';
+            return;
+        }
+
+        try {
+            $success = Show::update($id, [
+                'naam'            => $naam,
+                'beschrijving'    => $beschrijving,
+                'datum'           => $datum,
+                'tijd'            => $tijd,
+                'max_tickets'     => $maxTickets,
+                'beschikbaarheid' => $beschikbaarheid,
+            ]);
+        } catch (RuntimeException $e) {
+            $_SESSION['flash_db_error'] = 'Systeemfout: Kan geen verbinding maken met de database';
+            $voorstelling = Show::getById($id);
+            require_once __DIR__ . '/../views/voorstelling-wijzigen.view.php';
+            return;
+        }
+
+        if ($success) {
+            $_SESSION['flash_success'] = 'Voorstelling "' . htmlspecialchars($naam) . '" is succesvol gewijzigd!';
+        } else {
+            $_SESSION['flash_error'] = 'Er is een fout opgetreden bij het opslaan. Probeer het opnieuw.';
+        }
+
+        header('Location: ../overzicht voorstellingen/overzichtvoorstellingen.php');
+        exit;
+    }
+
     public function delete() {
         $id = (int)($_GET['id'] ?? 0);
 
