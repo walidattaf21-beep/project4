@@ -60,6 +60,7 @@
                     <th>Tijd</th>
                     <th>Capaciteit</th>
                     <th>Status</th>
+                    <th>Acties</th>
                 </tr>
             </thead>
 
@@ -81,6 +82,13 @@
                         <?php else: ?>
                             <span class="status rood">Geannuleerd</span>
                         <?php endif; ?>
+                    </td>
+                    <td data-label="Acties">
+                        <a href="voorstelling-verwijderen.php?id=<?= (int)$voorstelling['Id']; ?>"
+                           class="btn-verwijderen"
+                           id="btn-verwijderen-<?= (int)$voorstelling['Id']; ?>">
+                            🗑️ Verwijderen
+                        </a>
                     </td>
                 </tr>
 
