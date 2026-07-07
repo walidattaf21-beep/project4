@@ -59,4 +59,54 @@ class ShowController {
         header('Location: ../overzicht voorstellingen/overzichtvoorstellingen.php');
         exit;
     }
+
+    public function delete() {
+        $id = (int)($_GET['id'] ?? 0);
+
+        if ($id <= 0) {
+            header('Location: ../overzicht voorstellingen/overzichtvoorstellingen.php');
+            exit;
+        }
+
+        if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+            // Bevestigd: verwijder de voorstelling
+            $actie = $_POST['actie'] ?? '';
+
+            if ($actie === 'annuleren') {
+                // Scenario: Verwijderen geannuleerd
+                $_SESSION['flash_info'] = 'Verwijderen geannuleerd.';
+                header('Location: ../overzicht voorstellingen/overzichtvoorstellingen.php');
+                exit;
+            }
+
+            try {
+                $success = Show::delete($id);
+            } catch (RuntimeException $e) {
+                $_SESSION['flash_error'] = 'Systeemfout: Kan geen verbinding maken met de database.';
+                header('Location: ../overzicht voorstellingen/overzichtvoorstellingen.php');
+                exit;
+            }
+
+            if ($success) {
+                $_SESSION['flash_success'] = 'Voorstelling succesvol verwijderd';
+            } else {
+                $_SESSION['flash_error'] = 'Voorstelling kon niet worden verwijderd. Probeer het opnieuw.';
+            }
+
+            header('Location: ../overzicht voorstellingen/overzichtvoorstellingen.php');
+            exit;
+
+        } else {
+            // GET: toon bevestigingspagina
+            $voorstelling = Show::getById($id);
+
+            if (!$voorstelling) {
+                $_SESSION['flash_error'] = 'Voorstelling niet gevonden.';
+                header('Location: ../overzicht voorstellingen/overzichtvoorstellingen.php');
+                exit;
+            }
+
+            require_once __DIR__ . '/../views/voorstelling-verwijderen.view.php';
+        }
+    }
 }
