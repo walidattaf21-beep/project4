@@ -12,6 +12,7 @@ class Show {
 
         $sql = "
             SELECT
+                Id,
                 Naam,
                 Beschrijving,
                 Datum,
@@ -60,6 +61,67 @@ class Show {
             return true;
         } catch (PDOException $e) {
             // Detecteer database-verbindingsfouten (SQLSTATE 08xxx of specifieke codes)
+            $sqlState = $e->getCode();
+            if (
+                str_starts_with((string)$sqlState, '08') ||
+                str_contains($e->getMessage(), 'Connection refused') ||
+                str_contains($e->getMessage(), 'No connection') ||
+                str_contains($e->getMessage(), 'could not connect') ||
+                str_contains($e->getMessage(), 'SQLSTATE[HY000] [2002]') ||
+                str_contains($e->getMessage(), 'php_network_getaddresses')
+            ) {
+                throw new RuntimeException('db_connection_error', 0, $e);
+            }
+            return false;
+        }
+    }
+
+    public static function getById(int $id): ?array {
+        global $pdo;
+
+        if (!isset($pdo)) {
+            require_once __DIR__ . '/../database/config.php';
+        }
+
+        $sql = "
+            SELECT
+                Id,
+                Naam,
+                Beschrijving,
+                Datum,
+                Tijd,
+                MaxAantalTickets,
+                Beschikbaarheid
+            FROM Voorstelling
+            WHERE Id = :id AND IsActief = 1
+        ";
+
+        $stmt = $pdo->prepare($sql);
+        $stmt->execute([':id' => $id]);
+
+        $row = $stmt->fetch(PDO::FETCH_ASSOC);
+        return $row ?: null;
+    }
+
+    public static function delete(int $id): bool {
+        global $pdo;
+
+        if (!isset($pdo)) {
+            require_once __DIR__ . '/../database/config.php';
+        }
+
+        // Soft-delete: zet IsActief op 0
+        $sql = "
+            UPDATE Voorstelling
+            SET IsActief = 0
+            WHERE Id = :id AND IsActief = 1
+        ";
+
+        try {
+            $stmt = $pdo->prepare($sql);
+            $stmt->execute([':id' => $id]);
+            return $stmt->rowCount() > 0;
+        } catch (PDOException $e) {
             $sqlState = $e->getCode();
             if (
                 str_starts_with((string)$sqlState, '08') ||
