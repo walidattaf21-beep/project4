@@ -73,6 +73,28 @@ h1 {
     color: #ffffff;
 }
 
+/* ===== KNOP: WIJZIGEN ===== */
+.btn-wijzigen {
+    display: inline-block;
+    background-color: #0f0818;
+    color: #ffffff;
+    text-decoration: none;
+    border-radius: 6px;
+    padding: 6px 14px;
+    font-size: 13px;
+    font-weight: 600;
+    font-family: 'Inter', Arial, sans-serif;
+    transition: background-color 0.2s ease;
+    white-space: nowrap;
+    margin-right: 6px;
+}
+
+.btn-wijzigen:hover {
+    background-color: #2d1a45;
+    text-decoration: none;
+    color: #ffffff;
+}
+
 /* ===== KNOP: VERWIJDEREN ===== */
 .btn-verwijderen {
     display: inline-block;
