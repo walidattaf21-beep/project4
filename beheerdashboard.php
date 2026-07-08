@@ -321,7 +321,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['submit_feedback'])) {
 // Feedback is now handled from contact.php
 
 $stmt = $pdo->query(
-  'SELECT g.Id, g.Voornaam, g.Achternaam, g.IsActief, c.Email, r.Naam AS RolNaam FROM Gebruiker g LEFT JOIN Contact c ON c.GebruikerId = g.Id LEFT JOIN Rol r ON r.GebruikerId = g.Id AND r.IsActief = 1 ORDER BY g.Id DESC'
+  'SELECT g.Id, g.Voornaam, g.Achternaam, g.IsActief, c.Email, r.Naam AS RolNaam FROM Gebruiker g LEFT JOIN Contact c ON c.GebruikerId = g.Id LEFT JOIN Rol r ON r.GebruikerId = g.Id AND r.IsActief = 1 WHERE g.IsActief = 1 ORDER BY g.Id DESC'
 );
 $employees = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
@@ -344,7 +344,7 @@ $medewerkers = array_map(function ($row) {
 }, $employees);
 
 $stmt = $pdo->query(
-  'SELECT m.Id, m.Nummer, m.Type, m.Bericht, m.Opmerking, m.DatumAangemaakt, m.IsActief FROM Melding m ORDER BY m.Id DESC'
+  'SELECT m.Id, m.Nummer, m.Type, m.Bericht, m.Opmerking, m.DatumAangemaakt, m.IsActief FROM Melding m WHERE m.IsActief = 1 ORDER BY m.Id DESC'
 );
 $meldingRows = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
@@ -973,8 +973,9 @@ function deactivateEmployee(id) {
   form.action = 'beheerdashboard.php';
   form.innerHTML = `<input type="hidden" name="deactivate_employee" value="1"><input type="hidden" name="employee_id" value="${id}">`;
   document.body.appendChild(form);
-  form.onsubmit = () => { setTimeout(() => { window.location.reload(); }, 500); };
   form.submit();
+  // Laat PHP het afhandelen en reload na 1 seconde
+  setTimeout(() => { window.location.reload(); }, 1000);
 }
 
 function voegMedewerkerToe() {
