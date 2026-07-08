@@ -36,7 +36,7 @@ if (basename(dirname($_SERVER['SCRIPT_FILENAME'])) === 'overzicht voorstellingen
                 <li><a href="<?php echo $root_prefix; ?>overzicht voorstellingen/overzichtvoorstellingen.php">Voorstellingen</a></li>
                 <li><a href="#">Tickets</a></li>
                 <li><a href="#">Over Ons</a></li>
-                <li><a href="#">Contact</a></li>
+                <li><a href="<?php echo $root_prefix; ?>contact.php">Contact</a></li>
             </ul>
         </div>
 

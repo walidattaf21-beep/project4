@@ -13,6 +13,12 @@ function h($value) {
 }
 
 $flashMessages = $_SESSION['flash_messages'] ?? [];
+if (empty($flashMessages) && isset($_GET['flash_type'], $_GET['flash_text'])) {
+  $flashMessages['medewerkers'] = [
+    'type' => $_GET['flash_type'],
+    'text' => urldecode((string)$_GET['flash_text'])
+  ];
+}
 unset($_SESSION['flash_messages']);
 
 $pdo->exec(
@@ -21,12 +27,21 @@ $pdo->exec(
     Naam VARCHAR(100) NOT NULL,
     Email VARCHAR(255) NOT NULL,
     Bericht TEXT NOT NULL,
+    VoorstellingId INT,
     IsActief TINYINT(1) NOT NULL DEFAULT 1,
     DatumAangemaakt DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
     DatumGewijzigd DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-    PRIMARY KEY (Id)
+    PRIMARY KEY (Id),
+    FOREIGN KEY (VoorstellingId) REFERENCES Voorstelling(Id) ON DELETE SET NULL
   ) ENGINE=InnoDB"
 );
+
+// Voeg VoorstellingId kolom toe als deze nog niet bestaat
+try {
+  $pdo->exec("ALTER TABLE Feedback ADD COLUMN VoorstellingId INT DEFAULT NULL");
+} catch (Exception $e) {
+  // Kolom bestaat al, geen probleem
+}
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['add_employee'])) {
   $voornaam = trim($_POST['voornaam'] ?? '');
@@ -102,7 +117,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['add_employee'])) {
     }
   }
 
-  header('Location: beheerdashboard.php?section=medewerkers');
+  $redirectUrl = 'beheerdashboard.php?section=medewerkers';
+  if (isset($_SESSION['flash_messages']['medewerkers'])) {
+    $redirectUrl .= '&flash_type=' . urlencode($_SESSION['flash_messages']['medewerkers']['type']) . '&flash_text=' . urlencode($_SESSION['flash_messages']['medewerkers']['text']);
+  }
+  header('Location: ' . $redirectUrl);
   exit;
 }
 
@@ -149,7 +168,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['edit_employee'])) {
     }
   }
 
-  header('Location: beheerdashboard.php?section=medewerkers');
+  $redirectUrl = 'beheerdashboard.php?section=medewerkers';
+  if (isset($_SESSION['flash_messages']['medewerkers'])) {
+    $redirectUrl .= '&flash_type=' . urlencode($_SESSION['flash_messages']['medewerkers']['type']) . '&flash_text=' . urlencode($_SESSION['flash_messages']['medewerkers']['text']);
+  }
+  header('Location: ' . $redirectUrl);
   exit;
 }
 
@@ -181,7 +204,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['deactivate_employee']
     }
   }
 
-  header('Location: beheerdashboard.php?section=medewerkers');
+  $redirectUrl = 'beheerdashboard.php?section=medewerkers';
+  if (isset($_SESSION['flash_messages']['medewerkers'])) {
+    $redirectUrl .= '&flash_type=' . urlencode($_SESSION['flash_messages']['medewerkers']['type']) . '&flash_text=' . urlencode($_SESSION['flash_messages']['medewerkers']['text']);
+  }
+  header('Location: ' . $redirectUrl);
   exit;
 }
 
@@ -291,6 +318,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['submit_feedback'])) {
   exit;
 }
 
+// Feedback is now handled from contact.php
+
 $stmt = $pdo->query(
   'SELECT g.Id, g.Voornaam, g.Achternaam, g.IsActief, c.Email, r.Naam AS RolNaam FROM Gebruiker g LEFT JOIN Contact c ON c.GebruikerId = g.Id LEFT JOIN Rol r ON r.GebruikerId = g.Id AND r.IsActief = 1 ORDER BY g.Id DESC'
 );
@@ -339,7 +368,7 @@ $messageRecipients = $pdo->query(
 )->fetchAll(PDO::FETCH_ASSOC);
 
 $feedbackRows = $pdo->query(
-  'SELECT Id, Naam, Email, Bericht, DatumAangemaakt FROM Feedback ORDER BY Id DESC LIMIT 10'
+  'SELECT f.Id, f.Naam, f.Email, f.Bericht, f.VoorstellingId, v.Naam AS VoorstellingNaam, f.DatumAangemaakt FROM Feedback f LEFT JOIN Voorstelling v ON f.VoorstellingId = v.Id ORDER BY f.DatumAangemaakt DESC LIMIT 10'
 )->fetchAll(PDO::FETCH_ASSOC);
 ?>
 <!DOCTYPE html>
@@ -396,6 +425,13 @@ $feedbackRows = $pdo->query(
  
   <!-- ===== HOOFDINHOUD ===== -->
   <main class="content">
+    <?php $employeeFlash = $flashMessages['medewerkers'] ?? null; ?>
+    <?php if ($employeeFlash) : ?>
+      <div class="page-flash-banner" role="alert" style="display:flex; background: <?= $employeeFlash['type'] === 'success' ? 'linear-gradient(135deg, #166534 0%, #15803d 100%)' : 'linear-gradient(135deg, #7f1d1d 0%, #991b1b 100%)' ?>; border: 2px solid <?= $employeeFlash['type'] === 'success' ? '#22c55e' : '#ef4444' ?>; color: white; border-radius: 12px; padding: 1rem 1.1rem; margin-bottom: 1rem; gap: 10px; align-items: center; box-shadow: 0 6px 18px rgba(0,0,0,0.16);">
+        <i class="ti <?= $employeeFlash['type'] === 'success' ? 'ti-check-circle' : 'ti-alert-circle' ?>" style="font-size: 22px; flex-shrink: 0;"></i>
+        <div style="font-size: 16px; font-weight: 800;"><?= h($employeeFlash['text']) ?></div>
+      </div>
+    <?php endif; ?>
  
     <!-- Database knop -->
     <div style="display:flex;justify-content:flex-end;margin-bottom:1.25rem">
@@ -487,17 +523,6 @@ $feedbackRows = $pdo->query(
  
       <div class="form-card">
         <div class="form-title"><i class="ti ti-user-plus"></i> Nieuwe medewerker toevoegen</div>
-
-        <?php $employeeFlash = $flashMessages['medewerkers'] ?? null; ?>
-        <?php if ($employeeFlash) : ?>
-          <div class="<?= $employeeFlash['type'] === 'success' ? 'success-banner' : 'error-banner visible' ?> auto-hide" data-auto-hide="true" style="margin-bottom:1rem;opacity:1;transition:opacity 0.5s ease;">
-            <?php if ($employeeFlash['type'] === 'error') : ?>
-              <i class="ti ti-alert-circle"></i>
-            <?php endif; ?>
-            <div><?= h($employeeFlash['text']) ?></div>
-          </div>
-        <?php endif; ?>
-
         <form method="POST" action="beheerdashboard.php">
           <input type="hidden" name="add_employee" value="1">
           <div class="form-grid">
@@ -601,39 +626,7 @@ $feedbackRows = $pdo->query(
 
     <div id="s-feedback" class="section">
       <h1 class="page-title">Feedback</h1>
-      <p class="page-sub">Bezoekers kunnen feedback versturen en de administrator kan deze bekijken.</p>
-
-      <?php $feedbackFlash = $flashMessages['feedback'] ?? null; ?>
-      <?php if ($feedbackFlash) : ?>
-        <div class="<?= $feedbackFlash['type'] === 'success' ? 'success-banner' : 'error-banner visible' ?> auto-hide" data-auto-hide="true" style="margin-bottom:1rem;opacity:1;transition:opacity 0.5s ease;">
-          <?php if ($feedbackFlash['type'] === 'error') : ?>
-            <i class="ti ti-alert-circle"></i>
-          <?php endif; ?>
-          <div><?= h($feedbackFlash['text']) ?></div>
-        </div>
-      <?php endif; ?>
-
-      <div class="form-card">
-        <div class="form-title"><i class="ti ti-message-circle"></i> Feedbackformulier</div>
-        <form method="POST" action="beheerdashboard.php">
-          <input type="hidden" name="submit_feedback" value="1">
-          <div class="form-grid">
-            <div class="form-group">
-              <label for="fbNaam">Naam</label>
-              <input type="text" id="fbNaam" name="feedback_naam" placeholder="Uw naam" required>
-            </div>
-            <div class="form-group">
-              <label for="fbEmail">E-mailadres</label>
-              <input type="email" id="fbEmail" name="feedback_email" placeholder="naam@voorbeeld.nl" required>
-            </div>
-            <div class="form-group full">
-              <label for="fbBericht">Feedback</label>
-              <textarea id="fbBericht" name="feedback_bericht" rows="5" placeholder="Beschrijf uw feedback..." required></textarea>
-            </div>
-          </div>
-          <button type="submit" class="form-submit"><i class="ti ti-send"></i> Versturen</button>
-        </form>
-      </div>
+      <p class="page-sub">Bezoekers kunnen feedback versturen via de contactpagina en je kan deze hier bekijken.</p>
 
       <div class="form-card">
         <div class="form-title"><i class="ti ti-list"></i> Recent ontvangen feedback</div>
@@ -646,6 +639,7 @@ $feedbackRows = $pdo->query(
                 <tr>
                   <th>Naam</th>
                   <th>E-mail</th>
+                  <th>Voorstelling</th>
                   <th>Bericht</th>
                   <th>Datum</th>
                 </tr>
@@ -655,8 +649,9 @@ $feedbackRows = $pdo->query(
                   <tr>
                     <td class="td-bold"><?= h($feedback['Naam']) ?></td>
                     <td><?= h($feedback['Email']) ?></td>
-                    <td><?= h($feedback['Bericht']) ?></td>
-                    <td class="td-muted"><?= h($feedback['DatumAangemaakt']) ?></td>
+                    <td><?= !empty($feedback['VoorstellingNaam']) ? h($feedback['VoorstellingNaam']) : '<em style="color:#999;">-</em>' ?></td>
+                    <td><?= h(substr($feedback['Bericht'], 0, 100) . (strlen($feedback['Bericht']) > 100 ? '...' : '')) ?></td>
+                    <td class="td-muted"><?= h(date('d-m-Y H:i', strtotime($feedback['DatumAangemaakt']))) ?></td>
                   </tr>
                 <?php endforeach; ?>
               </tbody>
@@ -678,9 +673,11 @@ $feedbackRows = $pdo->query(
 
         <?php $messageFlash = $flashMessages['meldingen'] ?? null; ?>
         <?php if ($messageFlash) : ?>
-          <div class="<?= $messageFlash['type'] === 'success' ? 'success-banner' : 'error-banner visible' ?> auto-hide" data-auto-hide="true" style="margin-bottom:1rem;opacity:1;transition:opacity 0.5s ease;">
+          <div class="<?= $messageFlash['type'] === 'success' ? 'success-banner visible' : 'error-banner visible' ?> auto-hide" data-auto-hide="true" style="margin-bottom:1rem;opacity:1;transition:opacity 0.5s ease;">
             <?php if ($messageFlash['type'] === 'error') : ?>
               <i class="ti ti-alert-circle"></i>
+            <?php elseif ($messageFlash['type'] === 'success') : ?>
+              <i class="ti ti-check-circle"></i>
             <?php endif; ?>
             <div><?= h($messageFlash['text']) ?></div>
           </div>
@@ -970,12 +967,13 @@ function openEmployeeEditor(id) {
 function deactivateEmployee(id) {
   const m = medewerkers.find(x => x.id === id);
   if (!m) return;
-  if (!confirm(`Weet je zeker dat je ${m.naam} wilt deactiveren?`)) return;
+  if (!confirm(`Weet je zeker dat je ${m.naam} wilt verwijderen?`)) return;
   const form = document.createElement('form');
   form.method = 'POST';
   form.action = 'beheerdashboard.php';
   form.innerHTML = `<input type="hidden" name="deactivate_employee" value="1"><input type="hidden" name="employee_id" value="${id}">`;
   document.body.appendChild(form);
+  form.onsubmit = () => { setTimeout(() => { window.location.reload(); }, 500); };
   form.submit();
 }
 

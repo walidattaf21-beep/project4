@@ -40,7 +40,7 @@ function h($value) {
                 <li><a href="overzicht voorstellingen/overzichtvoorstellingen.php">Voorstellingen</a></li>
                 <li><a href="#">Tickets</a></li>
                 <li><a href="#">Over Ons</a></li>
-                <li><a href="#">Contact</a></li>
+                <li><a href="contact.php">Contact</a></li>
                 <?php if (canAccessDashboard()): ?>
                     <li><a href="beheerdashboard.php" class="beheer-btn">Beheerdashboard</a></li>
                 <?php endif; ?>
@@ -180,7 +180,7 @@ function h($value) {
         <div class="footer-links">
  
             <a href="#">Over Ons</a>
-            <a href="#">Contact</a>
+            <a href="contact.php">Contact</a>
             <a href="#">Veelgestelde Vragen</a>
             <a href="#">Algemene Voorwaarden</a>
  

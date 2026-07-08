@@ -260,26 +260,76 @@ nav {
 .db-dot { width: 8px; height: 8px; border-radius: 50%; background: #6abf80; transition: background 0.3s; }
 .db-dot.offline { background: #e24b4a; }
  
-/* ===== FOUTMELDING BANNER ===== */
+/* ===== BANNERS ===== */
+.success-banner,
 .error-banner {
   display: none;
-  background: #6b1111;
-  border: 1px solid #a83a3a;
-  border-radius: 10px;
+  border-radius: 12px;
   padding: 1rem 1.1rem;
   margin-bottom: 1.25rem;
-  color: #fff7f7;
   font-family: sans-serif;
   font-size: 16px;
-  font-weight: 700;
-  line-height: 1.4;
+  font-weight: 800;
+  line-height: 1.5;
   align-items: center;
   gap: 10px;
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.16);
+  letter-spacing: 0.2px;
+}
+
+.page-flash-banner {
+  display: flex !important;
+  position: sticky;
+  top: 12px;
+  z-index: 20;
+  margin-top: 0.5rem;
+  margin-bottom: 1rem;
+  border-radius: 12px;
+  padding: 1rem 1.1rem;
+  font-family: sans-serif;
+  font-size: 16px;
+  font-weight: 800;
+  line-height: 1.5;
+  align-items: center;
+  gap: 10px;
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.16);
+  letter-spacing: 0.2px;
+  opacity: 1 !important;
+}
+
+.success-banner {
+  display: flex;
+  background: linear-gradient(135deg, #166534 0%, #15803d 100%);
+  border: 2px solid #22c55e;
+  color: #ffffff;
+}
+
+.error-banner {
+  background: linear-gradient(135deg, #7f1d1d 0%, #991b1b 100%);
+  border: 2px solid #ef4444;
+  color: #fff7f7;
+}
+
+.page-flash-banner.success {
+  background: linear-gradient(135deg, #166534 0%, #15803d 100%) !important;
+  border: 2px solid #22c55e !important;
+  color: #ffffff !important;
+}
+
+.page-flash-banner.error {
+  background: linear-gradient(135deg, #7f1d1d 0%, #991b1b 100%) !important;
+  border: 2px solid #ef4444 !important;
+  color: #fff7f7 !important;
 }
  
+.success-banner.visible,
 .error-banner.visible { display: flex; }
-.error-banner > div { font-size: 16px; font-weight: 700; color: #fff7f7; }
-.error-banner i { font-size: 22px; color: #ff9a9a; flex-shrink: 0; }
+.page-flash-banner > div,
+.success-banner > div,
+.error-banner > div { font-size: 16px; font-weight: 800; color: inherit; }
+.page-flash-banner i,
+.success-banner i { font-size: 22px; color: #dcfce7; flex-shrink: 0; }
+.error-banner i { font-size: 22px; color: #fecaca; flex-shrink: 0; }
  
 /* ===== MEDEWERKER KAARTENGRID ===== */
 .med-grid {

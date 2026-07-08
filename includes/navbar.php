@@ -16,7 +16,7 @@
                 <li><a href="/overzicht voorstellingen/overzichtvoorstellingen.php"><i class="fas fa-theater-masks"></i> Voorstellingen</a></li>
                 <li><a href="#"><i class="fas fa-ticket-alt"></i> Tickets</a></li>
                 <li><a href="#"><i class="fas fa-info-circle"></i> Over Ons</a></li>
-                <li><a href="#"><i class="fas fa-envelope"></i> Contact</a></li>
+                <li><a href="contact.php"><i class="fas fa-envelope"></i> Contact</a></li>
             </ul>
         </nav>
 

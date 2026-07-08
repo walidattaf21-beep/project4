@@ -29,7 +29,7 @@
                     <li><a href="/overzicht voorstellingen/overzichtvoorstellingen.php">Voorstellingen</a></li>
                     <li><a href="#">Tickets</a></li>
                     <li><a href="#">Over Ons</a></li>
-                    <li><a href="#">Contact</a></li>
+                    <li><a href="contact.php">Contact</a></li>
                 </ul>
             </div>
 
