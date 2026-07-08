@@ -1,0 +1,176 @@
+/* =============================================
+   Overzicht Voorstellingen - Aurora Theater
+   ============================================= */
+
+/* Algemene styling */
+body {
+    font-family: Arial, sans-serif;
+    background-color: #f4f4f4;
+    margin: 0;
+    padding: 0;
+}
+
+
+/* Container */
+.container {
+    width: 90%;
+    max-width: 1200px;
+    margin: 40px auto;
+}
+
+/* Paginatitel */
+h1 {
+    text-align: center;
+    margin-bottom: 30px;
+    color: #0f0818;
+}
+
+/* Flash berichten */
+.flash {
+    padding: 12px 15px;
+    border-radius: 5px;
+    margin-bottom: 20px;
+    font-size: 14px;
+}
+
+.flash-success {
+    background-color: #d1fae5;
+    border: 1px solid #6ee7b7;
+    color: #065f46;
+}
+
+.flash-error {
+    background-color: #fee2e2;
+    border: 1px solid #fca5a5;
+    color: #991b1b;
+}
+
+/* ===== ACTIES BALK ===== */
+.acties-balk {
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+    margin-bottom: 24px;
+}
+
+/* ===== KNOP: NIEUWE VOORSTELLING ===== */
+.btn-toevoegen {
+    display: inline-block;
+    background-color: #D4A373;
+    color: #ffffff;
+    text-decoration: none;
+    border-radius: 8px;
+    padding: 10px 20px;
+    font-size: 15px;
+    font-weight: 600;
+    font-family: 'Inter', Arial, sans-serif;
+    transition: background-color 0.2s ease;
+}
+
+.btn-toevoegen:hover {
+    background-color: #b8895a;
+    text-decoration: none;
+    color: #ffffff;
+}
+
+/* Geen resultaten melding */
+.geen-resultaten {
+    text-align: center;
+    color: #6b7280;
+    font-size: 16px;
+    margin-top: 40px;
+}
+
+/* Tabel */
+table {
+    width: 100%;
+    border-collapse: collapse;
+    background-color: white;
+    border-radius: 8px;
+    overflow: hidden;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+/* Tabel koppen */
+th {
+    background-color: #0f0818;
+    color: white;
+    padding: 15px;
+    text-align: left;
+    font-weight: 600;
+}
+
+/* Tabel cellen */
+td {
+    padding: 13px 15px;
+    border-bottom: 1px solid #e5e7eb;
+    color: #374151;
+    vertical-align: middle;
+}
+
+/* Hover effect */
+tr:last-child td {
+    border-bottom: none;
+}
+
+tr:hover td {
+    background-color: #f9fafb;
+}
+
+/* Status badges */
+.status {
+    display: inline-block;
+    padding: 4px 12px;
+    border-radius: 20px;
+    font-size: 13px;
+    font-weight: 600;
+}
+
+.groen {
+    background-color: #d1fae5;
+    color: #065f46;
+}
+
+.oranje {
+    background-color: #fef3c7;
+    color: #92400e;
+}
+
+.rood {
+    background-color: #fee2e2;
+    color: #991b1b;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    table, thead, tbody, th, td, tr {
+        display: block;
+    }
+
+    thead {
+        display: none;
+    }
+
+    tr {
+        margin-bottom: 15px;
+        background: white;
+        border-radius: 8px;
+        box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
+        padding: 12px;
+    }
+
+    td {
+        border: none;
+        padding: 6px 10px;
+    }
+
+    td::before {
+        content: attr(data-label);
+        font-weight: bold;
+        display: block;
+        font-size: 12px;
+        color: #6b7280;
+        text-transform: uppercase;
+        margin-bottom: 2px;
+    }
+}
