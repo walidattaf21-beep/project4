@@ -15,6 +15,19 @@ function h($value) {
 $flashMessages = $_SESSION['flash_messages'] ?? [];
 unset($_SESSION['flash_messages']);
 
+$pdo->exec(
+  "CREATE TABLE IF NOT EXISTS Feedback (
+    Id INT NOT NULL AUTO_INCREMENT,
+    Naam VARCHAR(100) NOT NULL,
+    Email VARCHAR(255) NOT NULL,
+    Bericht TEXT NOT NULL,
+    IsActief TINYINT(1) NOT NULL DEFAULT 1,
+    DatumAangemaakt DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    DatumGewijzigd DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    PRIMARY KEY (Id)
+  ) ENGINE=InnoDB"
+);
+
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['add_employee'])) {
   $voornaam = trim($_POST['voornaam'] ?? '');
   $achternaam = trim($_POST['achternaam'] ?? '');
@@ -93,6 +106,85 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['add_employee'])) {
   exit;
 }
 
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['edit_employee'])) {
+  $employeeId = (int)($_POST['employee_id'] ?? 0);
+  $voornaam = trim($_POST['edit_voornaam'] ?? '');
+  $achternaam = trim($_POST['edit_achternaam'] ?? '');
+  $email = trim($_POST['edit_email'] ?? '');
+  $rol = trim($_POST['edit_rol'] ?? '');
+  $status = $_POST['edit_status'] ?? 'actief';
+  $isActief = ($status === 'actief' ? 1 : 0);
+
+  if ($employeeId <= 0 || $voornaam === '' || $achternaam === '' || $email === '' || $rol === '') {
+    $_SESSION['flash_messages']['medewerkers'] = ['type' => 'error', 'text' => 'Vul alle verplichte velden in.'];
+  } elseif (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
+    $_SESSION['flash_messages']['medewerkers'] = ['type' => 'error', 'text' => 'Vul een geldig e-mailadres in.'];
+  } else {
+    try {
+      $stmt = $pdo->prepare('SELECT GebruikerId FROM Contact WHERE Email = :email AND GebruikerId != :gebruiker_id');
+      $stmt->execute([':email' => $email, ':gebruiker_id' => $employeeId]);
+      if ($stmt->fetch()) {
+        $_SESSION['flash_messages']['medewerkers'] = ['type' => 'error', 'text' => 'E-mailadres bestaat al.'];
+      } else {
+        $pdo->beginTransaction();
+
+        $stmt = $pdo->prepare('UPDATE Gebruiker SET Voornaam = :voornaam, Achternaam = :achternaam, IsActief = :is_actief WHERE Id = :id');
+        $stmt->execute([':voornaam' => $voornaam, ':achternaam' => $achternaam, ':is_actief' => $isActief, ':id' => $employeeId]);
+
+        $stmt = $pdo->prepare('UPDATE Contact SET Email = :email, IsActief = 1 WHERE GebruikerId = :id');
+        $stmt->execute([':email' => $email, ':id' => $employeeId]);
+
+        $stmt = $pdo->prepare('UPDATE Rol SET Naam = :naam, IsActief = 1 WHERE GebruikerId = :id');
+        $stmt->execute([':naam' => $rol, ':id' => $employeeId]);
+
+        $stmt = $pdo->prepare('UPDATE Medewerker SET Medewerkersoort = :rol, IsActief = :is_actief WHERE GebruikerId = :id');
+        $stmt->execute([':rol' => $rol, ':is_actief' => $isActief, ':id' => $employeeId]);
+
+        $pdo->commit();
+        $_SESSION['flash_messages']['medewerkers'] = ['type' => 'success', 'text' => 'Medewerker is succesvol bijgewerkt.'];
+      }
+    } catch (Exception $e) {
+      $pdo->rollBack();
+      $_SESSION['flash_messages']['medewerkers'] = ['type' => 'error', 'text' => 'Er is iets misgegaan bij het bijwerken.'];
+    }
+  }
+
+  header('Location: beheerdashboard.php?section=medewerkers');
+  exit;
+}
+
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['deactivate_employee'])) {
+  $employeeId = (int)($_POST['employee_id'] ?? 0);
+
+  if ($employeeId <= 0) {
+    $_SESSION['flash_messages']['medewerkers'] = ['type' => 'error', 'text' => 'Geen medewerker geselecteerd.'];
+  } else {
+    try {
+      $pdo->beginTransaction();
+      $stmt = $pdo->prepare('UPDATE Gebruiker SET IsActief = 0 WHERE Id = :id');
+      $stmt->execute([':id' => $employeeId]);
+
+      $stmt = $pdo->prepare('UPDATE Contact SET IsActief = 0 WHERE GebruikerId = :id');
+      $stmt->execute([':id' => $employeeId]);
+
+      $stmt = $pdo->prepare('UPDATE Rol SET IsActief = 0 WHERE GebruikerId = :id');
+      $stmt->execute([':id' => $employeeId]);
+
+      $stmt = $pdo->prepare('UPDATE Medewerker SET IsActief = 0 WHERE GebruikerId = :id');
+      $stmt->execute([':id' => $employeeId]);
+
+      $pdo->commit();
+      $_SESSION['flash_messages']['medewerkers'] = ['type' => 'success', 'text' => 'Medewerker is succesvol gedeactiveerd.'];
+    } catch (Exception $e) {
+      $pdo->rollBack();
+      $_SESSION['flash_messages']['medewerkers'] = ['type' => 'error', 'text' => 'Er is iets misgegaan bij het deactiveren.'];
+    }
+  }
+
+  header('Location: beheerdashboard.php?section=medewerkers');
+  exit;
+}
+
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['add_message'])) {
   $onderwerp = trim($_POST['onderwerp'] ?? '');
   $bericht = trim($_POST['bericht'] ?? '');
@@ -128,6 +220,77 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['add_message'])) {
   exit;
 }
 
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['send_existing_message'])) {
+  $messageId = (int)($_POST['message_id'] ?? 0);
+  $recipientIds = $_POST['recipient_ids'] ?? [];
+  $recipientIds = array_filter(array_map('intval', (array)$recipientIds));
+
+  if ($messageId <= 0 || $recipientIds === []) {
+    $_SESSION['flash_messages']['meldingen'] = ['type' => 'error', 'text' => 'Kies een bestaande melding en minimaal één ontvanger.'];
+  } else {
+    try {
+      $stmt = $pdo->prepare('SELECT Id, Opmerking, Bericht FROM Melding WHERE Id = :id');
+      $stmt->execute([':id' => $messageId]);
+      $message = $stmt->fetch(PDO::FETCH_ASSOC);
+
+      if (!$message) {
+        $_SESSION['flash_messages']['meldingen'] = ['type' => 'error', 'text' => 'De geselecteerde melding bestaat niet.'];
+      } else {
+        $pdo->beginTransaction();
+        $nextNumber = (int)$pdo->query('SELECT COALESCE(MAX(Nummer), 0) + 1 FROM Melding')->fetchColumn();
+        $subject = !empty($message['Opmerking']) ? $message['Opmerking'] : 'Melding';
+        $bericht = $message['Bericht'];
+
+        foreach ($recipientIds as $recipientId) {
+          $stmt = $pdo->prepare(
+            'INSERT INTO Melding (BezoekerId, MedewerkerId, Nummer, Type, Bericht, IsActief, Opmerking) VALUES (:bezoeker_id, :medewerker_id, :nummer, :type, :bericht, 1, :opmerking)'
+          );
+          $stmt->execute([
+            ':bezoeker_id' => null,
+            ':medewerker_id' => $recipientId,
+            ':nummer' => $nextNumber++,
+            ':type' => 'Notificatie',
+            ':bericht' => $bericht,
+            ':opmerking' => $subject,
+          ]);
+        }
+
+        $pdo->commit();
+        $_SESSION['flash_messages']['meldingen'] = ['type' => 'success', 'text' => 'Melding is succesvol verstuurd naar de gekozen ontvangers.'];
+      }
+    } catch (Exception $e) {
+      $pdo->rollBack();
+      $_SESSION['flash_messages']['meldingen'] = ['type' => 'error', 'text' => 'Er is iets misgegaan bij het versturen.'];
+    }
+  }
+
+  header('Location: beheerdashboard.php?section=meldingen');
+  exit;
+}
+
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['submit_feedback'])) {
+  $naam = trim($_POST['feedback_naam'] ?? '');
+  $email = trim($_POST['feedback_email'] ?? '');
+  $bericht = trim($_POST['feedback_bericht'] ?? '');
+
+  if ($naam === '' || $email === '' || $bericht === '') {
+    $_SESSION['flash_messages']['feedback'] = ['type' => 'error', 'text' => 'Vul alle verplichte velden in.'];
+  } elseif (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
+    $_SESSION['flash_messages']['feedback'] = ['type' => 'error', 'text' => 'Vul een geldig e-mailadres in.'];
+  } else {
+    try {
+      $stmt = $pdo->prepare('INSERT INTO Feedback (Naam, Email, Bericht) VALUES (:naam, :email, :bericht)');
+      $stmt->execute([':naam' => $naam, ':email' => $email, ':bericht' => $bericht]);
+      $_SESSION['flash_messages']['feedback'] = ['type' => 'success', 'text' => 'Feedback is succesvol opgeslagen.'];
+    } catch (Exception $e) {
+      $_SESSION['flash_messages']['feedback'] = ['type' => 'error', 'text' => 'Er is iets misgegaan bij het opslaan van feedback.'];
+    }
+  }
+
+  header('Location: beheerdashboard.php?section=feedback');
+  exit;
+}
+
 $stmt = $pdo->query(
   'SELECT g.Id, g.Voornaam, g.Achternaam, g.IsActief, c.Email, r.Naam AS RolNaam FROM Gebruiker g LEFT JOIN Contact c ON c.GebruikerId = g.Id LEFT JOIN Rol r ON r.GebruikerId = g.Id AND r.IsActief = 1 ORDER BY g.Id DESC'
 );
@@ -141,6 +304,9 @@ $medewerkers = array_map(function ($row) {
   return [
     'id' => (int)$row['Id'],
     'naam' => $naam,
+    'voornaam' => $row['Voornaam'],
+    'achternaam' => $row['Achternaam'],
+    'email' => $row['Email'],
     'rol' => $rol,
     'init' => $init,
     'av' => ['av-gold', 'av-purple', 'av-teal', 'av-blue'][((int)$row['Id'] - 1) % 4],
@@ -163,6 +329,18 @@ $meldingen = array_map(function ($row) {
     'status' => ((int)$row['IsActief'] === 1) ? 'nieuw' : 'gesloten'
   ];
 }, $meldingRows);
+
+$messageOptions = $pdo->query(
+  'SELECT Id, Opmerking, Bericht FROM Melding WHERE IsActief = 1 ORDER BY Id DESC'
+)->fetchAll(PDO::FETCH_ASSOC);
+
+$messageRecipients = $pdo->query(
+  'SELECT g.Id, m.Id AS MedewerkerId, CONCAT(g.Voornaam, " ", g.Achternaam) AS Naam, m.Medewerkersoort AS Rol FROM Gebruiker g JOIN Medewerker m ON m.GebruikerId = g.Id WHERE g.IsActief = 1 AND m.IsActief = 1 ORDER BY g.Voornaam, g.Achternaam'
+)->fetchAll(PDO::FETCH_ASSOC);
+
+$feedbackRows = $pdo->query(
+  'SELECT Id, Naam, Email, Bericht, DatumAangemaakt FROM Feedback ORDER BY Id DESC LIMIT 10'
+)->fetchAll(PDO::FETCH_ASSOC);
 ?>
 <!DOCTYPE html>
 <html lang="nl">
@@ -205,6 +383,9 @@ $meldingen = array_map(function ($row) {
     <div class="sidebar-item" onclick="toonSectie('meldingen', this)">
       <i class="ti ti-bell"></i> Meldingen
       <span class="side-badge" id="sideBadge">3</span>
+    </div>
+    <div class="sidebar-item" onclick="toonSectie('feedback', this)">
+      <i class="ti ti-message-circle"></i> Feedback
     </div>
  
     <div class="sidebar-section">Systeem</div>
@@ -378,9 +559,110 @@ $meldingen = array_map(function ($row) {
         </div>
       </div>
  
+      <div class="form-card" id="employeeEditorForm" style="display:none;margin-bottom:1rem;">
+        <div class="form-title"><i class="ti ti-edit"></i> Medewerker bewerken</div>
+        <form method="POST" action="beheerdashboard.php">
+          <input type="hidden" name="edit_employee" value="1">
+          <input type="hidden" id="editEmployeeId" name="employee_id" value="">
+          <div class="form-grid">
+            <div class="form-group">
+              <label for="editVoornaam">Voornaam</label>
+              <input type="text" id="editVoornaam" name="edit_voornaam" placeholder="Voornaam">
+            </div>
+            <div class="form-group">
+              <label for="editAchternaam">Achternaam</label>
+              <input type="text" id="editAchternaam" name="edit_achternaam" placeholder="Achternaam">
+            </div>
+            <div class="form-group">
+              <label for="editEmail">E-mailadres</label>
+              <input type="email" id="editEmail" name="edit_email" placeholder="naam@voorbeeld.nl">
+            </div>
+            <div class="form-group">
+              <label for="editRol">Rol</label>
+              <input type="text" id="editRol" name="edit_rol" placeholder="Rol">
+            </div>
+            <div class="form-group">
+              <label for="editStatus">Status</label>
+              <select id="editStatus" name="edit_status">
+                <option value="actief">Actief</option>
+                <option value="inactief">Inactief</option>
+              </select>
+            </div>
+          </div>
+          <button type="submit" class="form-submit"><i class="ti ti-device-floppy"></i> Opslaan</button>
+        </form>
+      </div>
+
       <div class="med-grid" id="mwGrid"></div>
       <div class="empty" id="mwEmpty" style="display:none">
         <i class="ti ti-user-off"></i>Geen medewerkers gevonden.
+      </div>
+    </div>
+
+    <div id="s-feedback" class="section">
+      <h1 class="page-title">Feedback</h1>
+      <p class="page-sub">Bezoekers kunnen feedback versturen en de administrator kan deze bekijken.</p>
+
+      <?php $feedbackFlash = $flashMessages['feedback'] ?? null; ?>
+      <?php if ($feedbackFlash) : ?>
+        <div class="<?= $feedbackFlash['type'] === 'success' ? 'success-banner' : 'error-banner visible' ?> auto-hide" data-auto-hide="true" style="margin-bottom:1rem;opacity:1;transition:opacity 0.5s ease;">
+          <?php if ($feedbackFlash['type'] === 'error') : ?>
+            <i class="ti ti-alert-circle"></i>
+          <?php endif; ?>
+          <div><?= h($feedbackFlash['text']) ?></div>
+        </div>
+      <?php endif; ?>
+
+      <div class="form-card">
+        <div class="form-title"><i class="ti ti-message-circle"></i> Feedbackformulier</div>
+        <form method="POST" action="beheerdashboard.php">
+          <input type="hidden" name="submit_feedback" value="1">
+          <div class="form-grid">
+            <div class="form-group">
+              <label for="fbNaam">Naam</label>
+              <input type="text" id="fbNaam" name="feedback_naam" placeholder="Uw naam" required>
+            </div>
+            <div class="form-group">
+              <label for="fbEmail">E-mailadres</label>
+              <input type="email" id="fbEmail" name="feedback_email" placeholder="naam@voorbeeld.nl" required>
+            </div>
+            <div class="form-group full">
+              <label for="fbBericht">Feedback</label>
+              <textarea id="fbBericht" name="feedback_bericht" rows="5" placeholder="Beschrijf uw feedback..." required></textarea>
+            </div>
+          </div>
+          <button type="submit" class="form-submit"><i class="ti ti-send"></i> Versturen</button>
+        </form>
+      </div>
+
+      <div class="form-card">
+        <div class="form-title"><i class="ti ti-list"></i> Recent ontvangen feedback</div>
+        <?php if (empty($feedbackRows)) : ?>
+          <p class="page-sub">Er is nog geen feedback ontvangen.</p>
+        <?php else : ?>
+          <div class="tabel-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th>Naam</th>
+                  <th>E-mail</th>
+                  <th>Bericht</th>
+                  <th>Datum</th>
+                </tr>
+              </thead>
+              <tbody>
+                <?php foreach ($feedbackRows as $feedback) : ?>
+                  <tr>
+                    <td class="td-bold"><?= h($feedback['Naam']) ?></td>
+                    <td><?= h($feedback['Email']) ?></td>
+                    <td><?= h($feedback['Bericht']) ?></td>
+                    <td class="td-muted"><?= h($feedback['DatumAangemaakt']) ?></td>
+                  </tr>
+                <?php endforeach; ?>
+              </tbody>
+            </table>
+          </div>
+        <?php endif; ?>
       </div>
     </div>
  
@@ -446,6 +728,36 @@ $meldingen = array_map(function ($row) {
         </div>
       </div>
  
+      <div class="form-card" style="margin-bottom:1rem;">
+        <div class="form-title"><i class="ti ti-mail-opened"></i> Bestaande melding versturen</div>
+        <form method="POST" action="beheerdashboard.php">
+          <input type="hidden" name="send_existing_message" value="1">
+          <div class="form-grid">
+            <div class="form-group">
+              <label for="existingMessageId">Bestaande melding</label>
+              <select id="existingMessageId" name="message_id">
+                <option value="">Kies een melding</option>
+                <?php foreach ($messageOptions as $message) : ?>
+                  <option value="<?= (int)$message['Id'] ?>"><?= h($message['Opmerking'] ?: 'Melding') ?> - <?= h($message['Bericht']) ?></option>
+                <?php endforeach; ?>
+              </select>
+            </div>
+            <div class="form-group">
+              <label>Ontvangers</label>
+              <div style="display:flex;flex-direction:column;gap:0.4rem;max-height:180px;overflow:auto;padding:0.5rem;border:1px solid #e6e6e6;border-radius:10px;background:#fcfcfc;">
+                <?php foreach ($messageRecipients as $recipient) : ?>
+                  <label style="display:flex;align-items:center;gap:0.5rem;font-size:0.95rem;">
+                    <input type="checkbox" name="recipient_ids[]" value="<?= (int)$recipient['MedewerkerId'] ?>">
+                    <?= h($recipient['Naam']) ?> (<?= h($recipient['Rol']) ?>)
+                  </label>
+                <?php endforeach; ?>
+              </div>
+            </div>
+          </div>
+          <button type="submit" class="form-submit"><i class="ti ti-send"></i> Versturen</button>
+        </form>
+      </div>
+
       <div class="tabel-wrap">
         <table id="mlTabel">
           <thead>
@@ -619,11 +931,15 @@ function renderMedewerkers(lijst) {
   grid.innerHTML = data.map(m => `
     <div class="med-card">
       <div class="avatar ${m.av}">${m.init}</div>
-      <div>
+      <div style="flex:1">
         <p class="med-naam">${m.naam}</p>
         <p class="med-rol">${m.rol}</p>
       </div>
       <span class="badge b-${m.status}">${cap(m.status)}</span>
+      <div style="display:flex;gap:0.4rem;align-items:center;margin-left:auto;">
+        <button class="form-submit" style="padding:0.35rem 0.55rem;font-size:0.8rem;" onclick="event.stopPropagation(); openEmployeeEditor(${m.id})">Bewerken</button>
+        <button class="form-submit" style="padding:0.35rem 0.55rem;font-size:0.8rem;background:#b33a3a;" onclick="event.stopPropagation(); deactivateEmployee(${m.id})">Verwijderen</button>
+      </div>
     </div>
   `).join('');
 }
@@ -637,6 +953,32 @@ function filterMedewerkers() {
   ));
 }
  
+function openEmployeeEditor(id) {
+  const m = medewerkers.find(x => x.id === id);
+  if (!m) return;
+  const form = document.getElementById('employeeEditorForm');
+  document.getElementById('editEmployeeId').value = m.id;
+  document.getElementById('editVoornaam').value = m.voornaam || '';
+  document.getElementById('editAchternaam').value = m.achternaam || '';
+  document.getElementById('editEmail').value = m.email || '';
+  document.getElementById('editRol').value = m.rol || '';
+  document.getElementById('editStatus').value = m.status || 'actief';
+  form.style.display = 'block';
+  form.scrollIntoView({ behavior: 'smooth', block: 'start' });
+}
+
+function deactivateEmployee(id) {
+  const m = medewerkers.find(x => x.id === id);
+  if (!m) return;
+  if (!confirm(`Weet je zeker dat je ${m.naam} wilt deactiveren?`)) return;
+  const form = document.createElement('form');
+  form.method = 'POST';
+  form.action = 'beheerdashboard.php';
+  form.innerHTML = `<input type="hidden" name="deactivate_employee" value="1"><input type="hidden" name="employee_id" value="${id}">`;
+  document.body.appendChild(form);
+  form.submit();
+}
+
 function voegMedewerkerToe() {
   const voor = document.getElementById('mwVoornaam').value.trim();
   const acht = document.getElementById('mwAchternaam').value.trim();
