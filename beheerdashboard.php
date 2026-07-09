@@ -212,6 +212,29 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['deactivate_employee']
   exit;
 }
 
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['deactivate_message'])) {
+  $messageId = (int)($_POST['message_id'] ?? 0);
+  
+  if ($messageId <= 0) {
+    $_SESSION['flash_messages']['meldingen'] = ['type' => 'error', 'text' => 'Geen melding geselecteerd.'];
+  } else {
+    try {
+      $stmt = $pdo->prepare('UPDATE Melding SET IsActief = 0 WHERE Id = :id');
+      $stmt->execute([':id' => $messageId]);
+      $_SESSION['flash_messages']['meldingen'] = ['type' => 'success', 'text' => 'Melding is succesvol verwijderd.'];
+    } catch (Exception $e) {
+      $_SESSION['flash_messages']['meldingen'] = ['type' => 'error', 'text' => 'Er is iets misgegaan bij het verwijderen.'];
+    }
+  }
+  
+  $redirectUrl = 'beheerdashboard.php?section=meldingen';
+  if (isset($_SESSION['flash_messages']['meldingen'])) {
+    $redirectUrl .= '&flash_type=' . urlencode($_SESSION['flash_messages']['meldingen']['type']) . '&flash_text=' . urlencode($_SESSION['flash_messages']['meldingen']['text']);
+  }
+  header('Location: ' . $redirectUrl);
+  exit;
+}
+
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['add_message'])) {
   $onderwerp = trim($_POST['onderwerp'] ?? '');
   $bericht = trim($_POST['bericht'] ?? '');
@@ -427,10 +450,21 @@ $feedbackRows = $pdo->query(
   <main class="content">
     <?php $employeeFlash = $flashMessages['medewerkers'] ?? null; ?>
     <?php if ($employeeFlash) : ?>
-      <div class="page-flash-banner" role="alert" style="display:flex; background: <?= $employeeFlash['type'] === 'success' ? 'linear-gradient(135deg, #166534 0%, #15803d 100%)' : 'linear-gradient(135deg, #7f1d1d 0%, #991b1b 100%)' ?>; border: 2px solid <?= $employeeFlash['type'] === 'success' ? '#22c55e' : '#ef4444' ?>; color: white; border-radius: 12px; padding: 1rem 1.1rem; margin-bottom: 1rem; gap: 10px; align-items: center; box-shadow: 0 6px 18px rgba(0,0,0,0.16);">
+      <div class="page-flash-banner" id="auto-hide-banner" role="alert" style="display:flex; background: <?= $employeeFlash['type'] === 'success' ? 'linear-gradient(135deg, #166534 0%, #15803d 100%)' : 'linear-gradient(135deg, #7f1d1d 0%, #991b1b 100%)' ?>; border: 2px solid <?= $employeeFlash['type'] === 'success' ? '#22c55e' : '#ef4444' ?>; color: white; border-radius: 12px; padding: 1rem 1.1rem; margin-bottom: 1rem; gap: 10px; align-items: center; box-shadow: 0 6px 18px rgba(0,0,0,0.16); transition: opacity 0.5s ease;">
         <i class="ti <?= $employeeFlash['type'] === 'success' ? 'ti-check-circle' : 'ti-alert-circle' ?>" style="font-size: 22px; flex-shrink: 0;"></i>
         <div style="font-size: 16px; font-weight: 800;"><?= h($employeeFlash['text']) ?></div>
       </div>
+      <script>
+        setTimeout(function() {
+          var banner = document.getElementById('auto-hide-banner');
+          if (banner) {
+            banner.style.opacity = '0';
+            setTimeout(function() {
+              banner.style.display = 'none';
+            }, 500);
+          }
+        }, 4000);
+      </script>
     <?php endif; ?>
  
     <!-- Database knop -->
@@ -673,14 +707,21 @@ $feedbackRows = $pdo->query(
 
         <?php $messageFlash = $flashMessages['meldingen'] ?? null; ?>
         <?php if ($messageFlash) : ?>
-          <div class="<?= $messageFlash['type'] === 'success' ? 'success-banner visible' : 'error-banner visible' ?> auto-hide" data-auto-hide="true" style="margin-bottom:1rem;opacity:1;transition:opacity 0.5s ease;">
-            <?php if ($messageFlash['type'] === 'error') : ?>
-              <i class="ti ti-alert-circle"></i>
-            <?php elseif ($messageFlash['type'] === 'success') : ?>
-              <i class="ti ti-check-circle"></i>
-            <?php endif; ?>
-            <div><?= h($messageFlash['text']) ?></div>
+          <div class="page-flash-banner" id="auto-hide-banner-meldingen" role="alert" style="display:flex; background: <?= $messageFlash['type'] === 'success' ? 'linear-gradient(135deg, #166534 0%, #15803d 100%)' : 'linear-gradient(135deg, #7f1d1d 0%, #991b1b 100%)' ?>; border: 2px solid <?= $messageFlash['type'] === 'success' ? '#22c55e' : '#ef4444' ?>; color: white; border-radius: 12px; padding: 1rem 1.1rem; margin-bottom: 1rem; gap: 10px; align-items: center; box-shadow: 0 6px 18px rgba(0,0,0,0.16); transition: opacity 0.5s ease;">
+            <i class="ti <?= $messageFlash['type'] === 'success' ? 'ti-check-circle' : 'ti-alert-circle' ?>" style="font-size: 22px; flex-shrink: 0;"></i>
+            <div style="font-size: 16px; font-weight: 800;"><?= h($messageFlash['text']) ?></div>
           </div>
+          <script>
+            setTimeout(function() {
+              var banner = document.getElementById('auto-hide-banner-meldingen');
+              if (banner) {
+                banner.style.opacity = '0';
+                setTimeout(function() {
+                  banner.style.display = 'none';
+                }, 500);
+              }
+            }, 4000);
+          </script>
         <?php endif; ?>
 
         <form method="POST" action="beheerdashboard.php">
@@ -842,7 +883,7 @@ $feedbackRows = $pdo->query(
     <div class="modal-val" id="mDatum"></div>
     <div class="modal-lbl">Status</div>
     <div class="modal-val" id="mStatus"></div>
-    <button class="modal-btn" onclick="sluitMelding()">Melding sluiten</button>
+    <button class="modal-btn" onclick="sluitMelding()">Melding verwijderen</button>
   </div>
 </div>
  
@@ -1057,10 +1098,14 @@ function sluitModalDirect() { document.getElementById('modalBg').classList.remov
  
 function sluitMelding() {
   if (!activeMelding) return;
-  const m = meldingen.find(x => x.id === activeMelding.id);
-  if (m) m.status = 'gesloten';
-  sluitModalDirect();
-  renderMeldingen();
+  if (!confirm('Weet je zeker dat je deze melding wilt verwijderen?')) return;
+  const form = document.createElement('form');
+  form.method = 'POST';
+  form.action = 'beheerdashboard.php';
+  form.innerHTML = `<input type="hidden" name="deactivate_message" value="1"><input type="hidden" name="message_id" value="${activeMelding.id}">`;
+  document.body.appendChild(form);
+  form.submit();
+  setTimeout(() => { window.location.reload(); }, 1000);
 }
  
 /* ===================================================
